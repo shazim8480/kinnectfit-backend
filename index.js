@@ -38,7 +38,7 @@ const run = async () => {
         if (existingUser) {
           return res
             .status(409)
-            .json({ message: "Email already exists", status: 409 });
+            .json({ message: "Email already exists!", status: 409 });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10); // Hashing password
