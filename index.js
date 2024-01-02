@@ -25,6 +25,8 @@ const run = async () => {
   try {
     const db = client.db("kinnectfit");
     const userCollection = db.collection("users");
+    const trainerCollection = db.collection("trainers");
+    const workoutCollection = db.collection("workouts");
 
     // ! auth api
 
@@ -104,6 +106,112 @@ const run = async () => {
         res
           .status(500)
           .json({ message: "Error signing in", error: error.message });
+      }
+    });
+
+    // ********** ! Workouts api collection ! ********** //
+
+    // create a new workout
+    app.post("/api/kv1/create-workout", async (req, res) => {
+      try {
+        const {
+          workout_name,
+          workout_cover,
+          workout_modules,
+          category,
+          total_workout_time,
+          average_rating,
+          trainer_name,
+          trainer_id,
+          description,
+        } = req.body;
+
+        // Check if all required fields are present
+        if (
+          !workout_name ||
+          !workout_cover ||
+          !workout_modules ||
+          !category ||
+          !total_workout_time ||
+          !average_rating ||
+          !trainer_name ||
+          !trainer_id ||
+          !description ||
+          workout_modules.length === 0 // Ensure at least one module is provided
+        ) {
+          return res.status(400).json({
+            message: "All required fields must be provided",
+            status: 400,
+          });
+        }
+
+        // Save the new workout to the database
+        // Assume you have a 'workoutCollection' variable referencing your MongoDB collection
+        const insertedWorkout = await workoutCollection.insertOne(req.body);
+        res.status(201).json({
+          message: "Workout created successfully",
+          workout: insertedWorkout.ops[0],
+          status: 201,
+        });
+      } catch (error) {
+        res
+          .status(500)
+          .json({ message: "Error creating workout", error: error.message });
+      }
+    });
+
+    // Get all workouts
+    app.get("/api/kv1/workouts", async (req, res) => {
+      try {
+        const workouts = await workoutCollection.find({}).toArray();
+        res.status(200).json({ workouts, status: 200 });
+      } catch (error) {
+        res
+          .status(500)
+          .json({ message: "Error fetching workouts", error: error.message });
+      }
+    });
+
+    // Get a specific workout by ID
+    app.get("/api/kv1/workout/:id", async (req, res) => {
+      try {
+        const { id } = req.params;
+        const workout = await workoutCollection.findOne({ _id: ObjectId(id) });
+        if (!workout) {
+          return res
+            .status(404)
+            .json({ message: "Workout not found", status: 404 });
+        }
+        res.status(200).json({ workout, status: 200 });
+      } catch (error) {
+        res
+          .status(500)
+          .json({ message: "Error fetching workout", error: error.message });
+      }
+    });
+
+    // Update a specific workout by ID
+    app.put("/api/kv1/workout/:id", async (req, res) => {
+      try {
+        const { id } = req.params;
+        const updatedWorkout = req.body;
+        // Update the workout in the database
+        const result = await workoutCollection.updateOne(
+          { _id: ObjectId(id) },
+          { $set: updatedWorkout }
+        );
+        if (result.modifiedCount === 0) {
+          return res
+            .status(404)
+            .json({ message: "Workout not found", status: 404 });
+        }
+        res
+          .status(200)
+          .json({ message: "Workout updated successfully", status: 200 });
+      } catch (error) {
+        res
+          .status(500)
+          .json({ message: "Error updating workout", error: error.message });
       }
     });
   } finally {
