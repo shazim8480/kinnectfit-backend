@@ -28,7 +28,7 @@ const run = async () => {
     const trainerCollection = db.collection("trainers");
     const workoutCollection = db.collection("workouts");
 
-    // ! auth api
+    // ********** ! auth api ! ********** //
 
     // Sign up route
     app.post("/api/kv1/sign-up", async (req, res) => {
@@ -109,10 +109,142 @@ const run = async () => {
       }
     });
 
+    // ********** ! Trainers api collection ! ********** //
+
+    // Create a new trainer
+    app.post("/api/kv1/create-trainer", async (req, res) => {
+      try {
+        const {
+          trainer_id,
+          name,
+          age,
+          height,
+          weight,
+          BMI,
+          status,
+          isTrainer,
+          trainerImg,
+        } = req.body;
+
+        const newTrainer = {
+          trainer_id,
+          name,
+          age,
+          height,
+          weight,
+          BMI,
+          status,
+          isTrainer,
+          trainerImg,
+          created_at: new Date(),
+        };
+
+        // Check if a trainer with the same trainer_id already exists
+        const existingTrainer = await trainerCollection.findOne({ trainer_id });
+        if (existingTrainer) {
+          return res.status(409).json({
+            message: "Trainer already exists",
+            status: 409,
+          });
+        }
+
+        // Save the new trainer to the database
+        const insertedTrainer = await trainerCollection.insertOne(newTrainer);
+        res.status(201).json({
+          message: "Trainer created successfully",
+          trainer: insertedTrainer,
+          status: 201,
+        });
+      } catch (error) {
+        res
+          .status(500)
+          .json({ message: "Error creating trainer", error: error.message });
+      }
+    });
+
+    // Get all trainers
+    app.get("/api/kv1/trainers", async (req, res) => {
+      try {
+        const trainers = await trainerCollection.find({}).toArray();
+        res.status(200).json({ trainers, status: 200 });
+      } catch (error) {
+        res
+          .status(500)
+          .json({ message: "Error fetching trainers", error: error.message });
+      }
+    });
+
+    // Get a specific trainer by ID
+    app.get("/api/kv1/trainer/:trainer_id", async (req, res) => {
+      try {
+        const { trainer_id } = req.params;
+        const trainer = await trainerCollection.findOne({ trainer_id });
+        if (!trainer) {
+          return res
+            .status(404)
+            .json({ message: "Trainer not found", status: 404 });
+        }
+        res.status(200).json({ trainer, status: 200 });
+      } catch (error) {
+        res
+          .status(500)
+          .json({ message: "Error fetching trainer", error: error.message });
+      }
+    });
+
+    // Update a specific trainer by ID
+    app.put("/api/kv1/trainer/:trainer_id", async (req, res) => {
+      try {
+        const { trainer_id } = req.params;
+        const updatedTrainer = req.body;
+        // Perform validation or sanitation of data if needed
+        // Update the trainer in the database
+        const result = await trainerCollection.updateOne(
+          { trainer_id },
+          { $set: updatedTrainer }
+        );
+        if (result.modifiedCount === 0) {
+          return res
+            .status(404)
+            .json({ message: "Trainer not found", status: 404 });
+        }
+        res
+          .status(200)
+          .json({ message: "Trainer updated successfully", status: 200 });
+      } catch (error) {
+        res
+          .status(500)
+          .json({ message: "Error updating trainer", error: error.message });
+      }
+    });
+
+    // Delete a specific trainer by ID
+    app.delete("/api/kv1/trainer/:trainer_id", async (req, res) => {
+      try {
+        const { trainer_id } = req.params;
+        // Delete the trainer from the database
+        const result = await trainerCollection.deleteOne({ trainer_id });
+        if (result.deletedCount === 0) {
+          return res
+            .status(404)
+            .json({ message: "Trainer not found", status: 404 });
+        }
+        res
+          .status(200)
+          .json({ message: "Trainer deleted successfully", status: 200 });
+      } catch (error) {
+        res
+          .status(500)
+          .json({ message: "Error deleting trainer", error: error.message });
+      }
+    });
+
     // ********** ! Workouts api collection ! ********** //
 
     // create a new workout
     app.post("/api/kv1/create-workout", async (req, res) => {
+      const workout_id = uuidv4();
+
       try {
         const {
           workout_name,
@@ -120,37 +252,27 @@ const run = async () => {
           workout_modules,
           category,
           total_workout_time,
-          average_rating,
-          trainer_name,
           trainer_id,
           description,
         } = req.body;
 
-        // Check if all required fields are present
-        if (
-          !workout_name ||
-          !workout_cover ||
-          !workout_modules ||
-          !category ||
-          !total_workout_time ||
-          !average_rating ||
-          !trainer_name ||
-          !trainer_id ||
-          !description ||
-          workout_modules.length === 0 // Ensure at least one module is provided
-        ) {
-          return res.status(400).json({
-            message: "All required fields must be provided",
-            status: 400,
-          });
-        }
+        const newWorkout = {
+          workout_id: workout_id,
+          workout_name,
+          workout_cover,
+          workout_modules,
+          category,
+          total_workout_time,
+          trainer_id,
+          description,
+          created_at: new Date(),
+        };
 
         // Save the new workout to the database
-        // Assume you have a 'workoutCollection' variable referencing your MongoDB collection
-        const insertedWorkout = await workoutCollection.insertOne(req.body);
+        const insertedWorkout = await workoutCollection.insertOne(newWorkout);
         res.status(201).json({
           message: "Workout created successfully",
-          workout: insertedWorkout.ops[0],
+          workout: insertedWorkout,
           status: 201,
         });
       } catch (error) {
