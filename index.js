@@ -464,6 +464,61 @@ const run = async () => {
       }
     });
 
+    // ********** ! Update user api  ********** //
+
+    // Update user route
+    app.put("/api/kv1/update-user/:userId", async (req, res) => {
+      try {
+        const userId = req.params.userId;
+        const { name, email, newPassword } = req.body;
+
+        // Find user by ID in the database
+        const user = await userCollection.findOne({ id: userId });
+        if (!user) {
+          return res.status(404).json({ message: "User not found" });
+        }
+
+        // Update user information
+        const updateFields = {};
+        if (name) {
+          updateFields.name = name;
+        }
+
+        if (email && email !== user.email) {
+          // Check if the new email already exists in the database
+          const existingUser = await userCollection.findOne({ email });
+          if (existingUser) {
+            return res.status(409).json({ message: "Email already exists!" });
+          }
+          updateFields.email = email;
+        }
+
+        if (newPassword) {
+          const hashedPassword = await bcrypt.hash(newPassword, 10);
+          updateFields.password = hashedPassword;
+        }
+
+        // Perform the update in the database
+        const updatedUser = await userCollection.findOneAndUpdate(
+          { id: userId },
+          { $set: updateFields },
+          { returnDocument: "after" }
+        );
+
+        // Remove sensitive information from the updated user object
+        const { password: userPassword, ...userWithoutPassword } = updatedUser.value;
+
+        res.status(200).json({
+          message: "User updated successfully",
+          user: userWithoutPassword,
+          status: 200,
+        });
+      } catch (error) {
+        res.status(500).json({ message: "Error updating user", error: error.message });
+      }
+    });
+
+
   } finally {
   }
 };
