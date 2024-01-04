@@ -12,8 +12,10 @@ const cors = require("cors");
 app.use(cors());
 app.use(express.json());
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.raiw9.mongodb.net/?retryWrites=true&w=majority`;
+// const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.raiw9.mongodb.net/?retryWrites=true&w=majority`;
 // const uri = `mongodb://localhost:27017`;
+
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.efpjwcu.mongodb.net/?retryWrites=true&w=majority`;
 
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
@@ -27,6 +29,9 @@ const run = async () => {
     const userCollection = db.collection("users");
     const trainerCollection = db.collection("trainers");
     const workoutCollection = db.collection("workouts");
+    const mealPlanCollection = db.collection("mealPlans");
+
+
 
     // ********** ! auth api ! ********** //
 
@@ -336,6 +341,129 @@ const run = async () => {
           .json({ message: "Error updating workout", error: error.message });
       }
     });
+
+    // ********** ! Meal plan api collection ! ********** //
+
+    // Create a meal plan
+    app.post("/api/kv1/create-meal-plan", async (req, res) => {
+      const trainer_id = uuidv4();
+      try {
+        const {
+          ingredients,
+          prep_time,
+          meal_name,
+          mealPlan_name,
+          mealPlan_description,
+          mealPlan_cover_img,
+          mealPlan_category,
+          mealCoverImg,
+          mealCategory
+        } = req.body;
+
+        const newMealPlan = {
+          trainer_id: trainer_id,
+          ingredients,
+          prep_time,
+          meal_name,
+          mealPlan_name,
+          mealPlan_description,
+          mealPlan_cover_img,
+          mealPlan_category,
+          mealCoverImg,
+          mealCategory,
+          created_at: new Date(),
+        };
+
+        // Save the new mealPlan to the database
+        const insertedMealPlan = await mealPlanCollection.insertOne(newMealPlan);
+        res.status(201).json({
+          message: "Meal Plan created successfully",
+          mealPlan: insertedMealPlan,
+          status: 201,
+        });
+      } catch (error) {
+        res
+          .status(500)
+          .json({ message: "Error creating workout", error: error.message });
+      }
+    });
+
+    // Get all meal plans
+    app.get("/api/kv1/meal-plans", async (req, res) => {
+      try {
+        const mealPlans = await mealPlanCollection.find({}).toArray();
+        res.status(200).json({ mealPlans, status: 200 });
+      } catch (error) {
+        res
+          .status(500)
+          .json({ message: "Error fetching workouts", error: error.message });
+      }
+    });
+
+    // Get a specific meal plan by ID
+    app.get("/api/kv1/meal-plan/:id", async (req, res) => {
+      try {
+        const { id } = req.params;
+        const mealPlan = await mealPlanCollection.findOne({ _id: ObjectId(id) });
+        if (!mealPlan) {
+          return res
+            .status(404)
+            .json({ message: "Meal plan not found", status: 404 });
+        }
+        res.status(200).json({ mealPlan, status: 200 });
+      } catch (error) {
+        res
+          .status(500)
+          .json({ message: "Error fetching meal plan", error: error.message });
+      }
+    });
+
+    // Update a specific meal plan by ID
+    app.put("/api/kv1/meal-plan/:id", async (req, res) => {
+      try {
+        const { id } = req.params;
+        const updatedMealPlan = req.body;
+        // Update the workout in the database
+        const result = await mealPlanCollection.updateOne(
+          { _id: ObjectId(id) },
+          { $set: updatedMealPlan }
+        );
+        if (result.modifiedCount === 0) {
+          return res
+            .status(404)
+            .json({ message: "Meal plan not found", status: 404 });
+        }
+        res
+          .status(200)
+          .json({ message: "Meal plan updated successfully", status: 200 });
+      } catch (error) {
+        res
+          .status(500)
+          .json({ message: "Error updating meal plan", error: error.message });
+      }
+    });
+
+    // Delete a specific meal plan by ID
+    app.delete("/api/kv1/meal-plan/:id", async (req, res) => {
+      try {
+        const { id } = req.params;
+        const result = await mealPlanCollection.deleteOne(
+          { _id: ObjectId(id) });
+        if (result.deletedCount === 0) {
+          return res
+            .status(404)
+            .json({ message: "Meal plan not found", status: 404 });
+        }
+        res
+          .status(200)
+          .json({ message: "Meal plan deleted successfully", status: 200 });
+      } catch (error) {
+        res
+          .status(500)
+          .json({ message: "Error deleting meal plan", error: error.message });
+      }
+    });
+
   } finally {
   }
 };
