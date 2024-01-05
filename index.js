@@ -470,7 +470,7 @@ const run = async () => {
     // ********** ! Update user api  ********** //
 
     // Update user route
-    app.put("/api/kv1/update-user/:userId", async (req, res) => {
+    app.put("/api/kv1/update-us/:userId", async (req, res) => {
       try {
         const userId = req.params.userId;
         const { name, email, newPassword } = req.body;
@@ -515,6 +515,86 @@ const run = async () => {
         res.status(200).json({
           message: "User updated successfully",
           user: userWithoutPassword,
+          status: 200,
+        });
+      } catch (error) {
+        res
+          .status(500)
+          .json({ message: "Error updating user", error: error.message });
+      }
+    });
+    // Get all users
+    app.get("/api/kv1/users", async (req, res) => {
+      try {
+        const users = await userCollection.find({}).toArray();
+        res.status(200).json({ users, status: 200 });
+      } catch (error) {
+        res
+          .status(500)
+          .json({ message: "Error fetching users", error: error.message });
+      }
+    });
+
+    // Get a specific user by id
+    app.get("/api/kv1/user/:id", async (req, res) => {
+      try {
+        const { id } = req.params;
+        const user = await userCollection.findOne({ _id: ObjectId(id) });
+        if (!user) {
+          return res
+            .status(404)
+            .json({ message: "user not found", status: 404 });
+        }
+        res.status(200).json({ user, status: 200 });
+      } catch (error) {
+        res
+          .status(500)
+          .json({ message: "Error fetching users", error: error.message });
+      }
+    });
+    // Update user route
+    app.put("/api/kv1/update-user/:userId", async (req, res) => {
+      try {
+        const userId = req.params.userId;
+        const { name, workout_name, workout_id, workout_modules } = req.body;
+
+        // Find user by ID in the database
+        const user = await userCollection.findOne({ id: userId });
+        if (!user) {
+          return res.status(404).json({ message: "User not found" });
+        }
+
+        // Update user information
+        const updateFields = {};
+        if (workout_name) {
+          updateFields.workout_name = workout_name;
+          updateFields.workout_id = workout_id;
+          updateFields.workout_modules = workout_modules;
+        }
+
+        const workoutsUpdate = {
+          $push: {
+            workouts: updateFields,
+          },
+        };
+
+        const updateModule = {};
+        if (name) {
+          updateModule.workout_name = workout_name;
+          updateModule.workout_id = workout_id;
+          updateModule.workout_modules = workout_modules;
+        }
+
+        // Perform the update in the database
+        const updatedUser = await userCollection.findOneAndUpdate(
+          { id: userId },
+          workoutsUpdate,
+          { returnDocument: "after" }
+        );
+
+        res.status(200).json({
+          message: "User updated successfully",
+          user: updatedUser,
           status: 200,
         });
       } catch (error) {
