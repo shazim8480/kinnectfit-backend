@@ -12,10 +12,10 @@ const cors = require("cors");
 app.use(cors());
 app.use(express.json());
 
-// const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.raiw9.mongodb.net/?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.raiw9.mongodb.net/?retryWrites=true&w=majority`;
 // const uri = `mongodb://localhost:27017`;
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.efpjwcu.mongodb.net/?retryWrites=true&w=majority`;
+// const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.efpjwcu.mongodb.net/?retryWrites=true&w=majority`;
 
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
@@ -30,8 +30,6 @@ const run = async () => {
     const trainerCollection = db.collection("trainers");
     const workoutCollection = db.collection("workouts");
     const mealPlanCollection = db.collection("mealPlans");
-
-
 
     // ********** ! auth api ! ********** //
 
@@ -357,7 +355,7 @@ const run = async () => {
           mealPlan_cover_img,
           mealPlan_category,
           mealCoverImg,
-          mealCategory
+          mealCategory,
         } = req.body;
 
         const newMealPlan = {
@@ -375,7 +373,9 @@ const run = async () => {
         };
 
         // Save the new mealPlan to the database
-        const insertedMealPlan = await mealPlanCollection.insertOne(newMealPlan);
+        const insertedMealPlan = await mealPlanCollection.insertOne(
+          newMealPlan
+        );
         res.status(201).json({
           message: "Meal Plan created successfully",
           mealPlan: insertedMealPlan,
@@ -404,7 +404,9 @@ const run = async () => {
     app.get("/api/kv1/meal-plan/:id", async (req, res) => {
       try {
         const { id } = req.params;
-        const mealPlan = await mealPlanCollection.findOne({ _id: ObjectId(id) });
+        const mealPlan = await mealPlanCollection.findOne({
+          _id: ObjectId(id),
+        });
         if (!mealPlan) {
           return res
             .status(404)
@@ -447,8 +449,9 @@ const run = async () => {
     app.delete("/api/kv1/meal-plan/:id", async (req, res) => {
       try {
         const { id } = req.params;
-        const result = await mealPlanCollection.deleteOne(
-          { _id: ObjectId(id) });
+        const result = await mealPlanCollection.deleteOne({
+          _id: ObjectId(id),
+        });
         if (result.deletedCount === 0) {
           return res
             .status(404)
@@ -506,7 +509,8 @@ const run = async () => {
         );
 
         // Remove sensitive information from the updated user object
-        const { password: userPassword, ...userWithoutPassword } = updatedUser.value;
+        const { password: userPassword, ...userWithoutPassword } =
+          updatedUser.value;
 
         res.status(200).json({
           message: "User updated successfully",
@@ -514,11 +518,11 @@ const run = async () => {
           status: 200,
         });
       } catch (error) {
-        res.status(500).json({ message: "Error updating user", error: error.message });
+        res
+          .status(500)
+          .json({ message: "Error updating user", error: error.message });
       }
     });
-
-
   } finally {
   }
 };
