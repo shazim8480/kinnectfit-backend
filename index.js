@@ -318,6 +318,27 @@ const run = async () => {
       }
     });
 
+    // get workout from specific user
+    app.get("/api/kv1/user-workout/:user_id", async (req, res) => {
+      try {
+        const { user_id } = req.params;
+        // console.log(params);
+        const user = await userCollection.findOne({ id: user_id });
+        // return;
+
+        if (!user) {
+          return res.status(404).json({ message: "User not found", status: 404 });
+        }
+
+        res.status(200).json({ workouts: user.workouts, status: 200 });
+
+      } catch (error) {
+        res.status(500).json({ message: "Error fetching workouts", error: error.message });
+      }
+    });
+
+
+
     // Update a specific workout by ID
     app.put("/api/kv1/workout/:id", async (req, res) => {
       try {
@@ -337,6 +358,42 @@ const run = async () => {
           .status(200)
           .json({ message: "Workout updated successfully", status: 200 });
       } catch (error) {
+        res
+          .status(500)
+          .json({ message: "Error updating workout", error: error.message });
+      }
+    });
+
+    // Update specific user by workout module
+    app.put("/api/kv1/update-workout-module/:user_id", async (req, res) => {
+      try {
+        const { user_id } = req.params;
+        const { moduleName } = req.body;
+        if (moduleName) {
+          const workoutsUpdate = {
+            $push: {
+              isCompleted: true
+            },
+          };
+
+          const result = await userCollection.findOneAndUpdate(
+            { id: user_id },
+            workoutsUpdate,
+            { returnDocument: "after" }
+          );
+
+          if (result.modifiedCount === 0) {
+            return res
+              .status(404)
+              .json({ message: "Workout not found", status: 404 });
+          }
+          res
+            .status(200)
+            .json({ message: "Workout updated successfully", status: 200 });
+        }
+
+      }
+      catch (error) {
         res
           .status(500)
           .json({ message: "Error updating workout", error: error.message });
@@ -496,33 +553,55 @@ const run = async () => {
     app.put("/api/kv1/update-user/:user_id", async (req, res) => {
       try {
         const { user_id } = req.params;
-        // return;
-
-        const { workout_id, meal_id, mealPlan_id } = req.body;
-
+        const { workout_id, meal_id, mealPlan_id, workout_name, workout_modules } = req.body;
         const user = await userCollection.findOne({ id: user_id });
-        // console.log(user);
-        // return;
-
         if (!user) {
           return res.status(404).json({ message: "User not found", status: 404 });
         }
-        // return
         // Update user with workout information
         if (workout_id) {
+          // Update user information
+          const updateFields = {};
+          // if (workout_name) {
+          updateFields.workout_name = workout_name;
+          updateFields.workout_id = workout_id;
+          updateFields.workout_modules = workout_modules;
+          // }
+          console.log(updateFields);
+
+          const workoutsUpdate = {
+            $push: {
+              workouts: updateFields,
+            },
+          };
+
+
+          // Perform the update in the database
           const updatedUser = await userCollection.findOneAndUpdate(
             { id: user_id },
-            { $addToSet: { workouts: workout_id } }, // Assuming workouts is an array in your user schema
+            workoutsUpdate,
             { returnDocument: "after" }
           );
-          console.log(updatedUser);
 
-          // return;
           res.status(200).json({
-            message: "User updated successfully with workout",
-            user: updatedUser.value,
+            message: "User updated successfully",
+            user: updatedUser,
             status: 200,
           });
+        }
+        if (workout_modules) {
+          const updatedWorkout = await workoutCollection.findOneAndUpdate(
+            { id: workout_id },
+            {
+              $set: {
+                "workout_modules.$[elem].isCompleted": { $ifNull: ["$workout_modules.$[elem].isCompleted", false] }, // Add if missing
+                $expr: { $eq: ["$workout_modules.name", moduleName] },
+              },
+              $set: { "workout_modules.$[elem].isCompleted": true }, // Set to true
+            }
+          );
+          res.status(200).json({ message: "Module status updated", workout: updatedWorkout }
+          );
         }
         // return;
         // Update user with meal information
@@ -689,6 +768,7 @@ const run = async () => {
           .json({ message: "Error deleting meal", error: error.message });
       }
     });
+
 
 
 
