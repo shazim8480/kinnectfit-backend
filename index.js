@@ -30,6 +30,7 @@ const run = async () => {
     const trainerCollection = db.collection("trainers");
     const workoutCollection = db.collection("workouts");
     const mealPlanCollection = db.collection("mealPlans");
+    const mealCollection = db.collection("meals");
 
 
 
@@ -49,11 +50,11 @@ const run = async () => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10); // Hashing password
-        const userId = uuidv4();
+        const user_id = uuidv4();
 
         // Save user to the database
         const newUser = await userCollection.insertOne({
-          id: userId,
+          id: user_id,
           name,
           email,
           password: hashedPassword,
@@ -62,7 +63,7 @@ const run = async () => {
 
         const createdUser = {
           _id: newUser.insertedId,
-          id: userId,
+          id: user_id,
           name,
           email,
           created_at: new Date(),
@@ -346,39 +347,33 @@ const run = async () => {
 
     // Create a meal plan
     app.post("/api/kv1/create-meal-plan", async (req, res) => {
-      const trainer_id = uuidv4();
+      const mealPlan_id = uuidv4();
       try {
         const {
-          ingredients,
-          prep_time,
-          meal_name,
+          trainer_id,
           mealPlan_name,
           mealPlan_description,
-          mealPlan_cover_img,
           mealPlan_category,
-          mealCoverImg,
-          mealCategory
+          mealPlan_cover_img
         } = req.body;
 
         const newMealPlan = {
-          trainer_id: trainer_id,
-          ingredients,
-          prep_time,
-          meal_name,
+          trainer_id,
+          mealPlan_id: mealPlan_id,
           mealPlan_name,
           mealPlan_description,
-          mealPlan_cover_img,
           mealPlan_category,
-          mealCoverImg,
-          mealCategory,
+          mealPlan_cover_img,
           created_at: new Date(),
         };
 
         // Save the new mealPlan to the database
         const insertedMealPlan = await mealPlanCollection.insertOne(newMealPlan);
+        // console.log(insertedMealPlan);
+
         res.status(201).json({
           message: "Meal Plan created successfully",
-          mealPlan: insertedMealPlan,
+          mealPlan: { insertedMealPlan, mealPlan_id },
           status: 201,
         });
       } catch (error) {
@@ -464,59 +459,241 @@ const run = async () => {
       }
     });
 
-    // ********** ! Update user api  ********** //
-
-    // Update user route
-    app.put("/api/kv1/update-user/:userId", async (req, res) => {
+    // ********** !  user api  ********** //
+    // Get all users
+    app.get("/api/kv1/users", async (req, res) => {
       try {
-        const userId = req.params.userId;
-        const { name, email, newPassword } = req.body;
-
-        // Find user by ID in the database
-        const user = await userCollection.findOne({ id: userId });
-        if (!user) {
-          return res.status(404).json({ message: "User not found" });
-        }
-
-        // Update user information
-        const updateFields = {};
-        if (name) {
-          updateFields.name = name;
-        }
-
-        if (email && email !== user.email) {
-          // Check if the new email already exists in the database
-          const existingUser = await userCollection.findOne({ email });
-          if (existingUser) {
-            return res.status(409).json({ message: "Email already exists!" });
-          }
-          updateFields.email = email;
-        }
-
-        if (newPassword) {
-          const hashedPassword = await bcrypt.hash(newPassword, 10);
-          updateFields.password = hashedPassword;
-        }
-
-        // Perform the update in the database
-        const updatedUser = await userCollection.findOneAndUpdate(
-          { id: userId },
-          { $set: updateFields },
-          { returnDocument: "after" }
-        );
-
-        // Remove sensitive information from the updated user object
-        const { password: userPassword, ...userWithoutPassword } = updatedUser.value;
-
-        res.status(200).json({
-          message: "User updated successfully",
-          user: userWithoutPassword,
-          status: 200,
-        });
+        const users = await userCollection.find({}).toArray();
+        res.status(200).json({ users, status: 200 });
       } catch (error) {
-        res.status(500).json({ message: "Error updating user", error: error.message });
+        res
+          .status(500)
+          .json({ message: "Error fetching users", error: error.message });
       }
     });
+
+    // Get a specific workout by ID
+    app.get("/api/kv1/user/:id", async (req, res) => {
+      try {
+        const { id } = req.params;
+        const user = await userCollection.findOne({ id });
+        if (!user) {
+          return res
+            .status(404)
+            .json({ message: "User not found", status: 404 });
+        }
+        res.status(200).json({ user, status: 200 });
+      } catch (error) {
+        res
+          .status(500)
+          .json({ message: "Error fetching user", error: error.message });
+      }
+    });
+
+    // ********** ! Update user api  ********** //
+    // Update user route
+    // Define a new endpoint to update user with workout, meal, or meal plan
+    app.put("/api/kv1/update-user/:user_id", async (req, res) => {
+      try {
+        const { user_id } = req.params;
+        // return;
+
+        const { workout_id, meal_id, mealPlan_id } = req.body;
+
+        const user = await userCollection.findOne({ id: user_id });
+        // console.log(user);
+        // return;
+
+        if (!user) {
+          return res.status(404).json({ message: "User not found", status: 404 });
+        }
+        // return
+        // Update user with workout information
+        if (workout_id) {
+          const updatedUser = await userCollection.findOneAndUpdate(
+            { id: user_id },
+            { $addToSet: { workouts: workout_id } }, // Assuming workouts is an array in your user schema
+            { returnDocument: "after" }
+          );
+          console.log(updatedUser);
+
+          // return;
+          res.status(200).json({
+            message: "User updated successfully with workout",
+            user: updatedUser.value,
+            status: 200,
+          });
+        }
+        // return;
+        // Update user with meal information
+        else if (meal_id) {
+          const updatedUser = await userCollection.findOneAndUpdate(
+            { id: user_id },
+            { $addToSet: { meals: meal_id } }, // Assuming meals is an array in your user schema
+            { returnDocument: "after" }
+          );
+
+          res.status(200).json({
+            message: "User updated successfully with meal",
+            user: updatedUser.value,
+            status: 200,
+          });
+        }
+
+        // Update user with meal plan information
+        else if (mealPlan_id) {
+          const updatedUser = await userCollection.findOneAndUpdate(
+            { id: user_id },
+            { $addToSet: { mealPlans: mealPlan_id } }, // Assuming mealPlans is an array in your user schema
+            { returnDocument: "after" }
+          );
+
+          res.status(200).json({
+            message: "User updated successfully with meal plan",
+            user: updatedUser.value,
+            status: 200,
+          });
+        };
+      } catch (error) {
+        res
+          .status(500)
+          .json({ message: "Error updating user", error: error.message });
+      }
+    });
+
+
+    // ********** ! Meal api collection ! ********** //
+
+    // Create a meal 
+    app.post("/api/kv1/create-meal", async (req, res) => {
+      const meal_id = uuidv4();
+      try {
+        const {
+          available_category,
+          carbs,
+          fat,
+          meal_category,
+          meal_img,
+          meal_name,
+          prep_time,
+          protein,
+          ingredients,
+          mealPlan_id,
+          trainer_id
+        } = req.body;
+
+        const newMeal = {
+          trainer_id,
+          meal_id: meal_id,
+          meal_name,
+          meal_img,
+          meal_category,
+          available_category,
+          mealPlan_id,
+          carbs,
+          fat,
+          prep_time,
+          protein,
+          ingredients,
+          created_at: new Date(),
+        };
+
+        // Save the new mealPlan to the database
+        const insertedMeal = await mealCollection.insertOne(newMeal);
+        // console.log(insertedMeal);
+
+        res.status(201).json({
+          message: "Meal created successfully",
+          mealPlan: { insertedMeal, meal_id },
+          status: 201,
+        });
+      } catch (error) {
+        res
+          .status(500)
+          .json({ message: "Error creating meal", error: error.message });
+      }
+    });
+
+    // Get all meals
+    app.get("/api/kv1/meals", async (req, res) => {
+      try {
+        const meals = await mealCollection.find({}).toArray();
+        res.status(200).json({ meals, status: 200 });
+      } catch (error) {
+        res
+          .status(500)
+          .json({ message: "Error fetching meals", error: error.message });
+      }
+    });
+
+    // Get a specific meal  by ID
+    app.get("/api/kv1/meal/:id", async (req, res) => {
+      try {
+        const { id } = req.params;
+        const meal = await mealCollection.findOne({ _id: ObjectId(id) });
+        if (!meal) {
+          return res
+            .status(404)
+            .json({ message: "Meal not found", status: 404 });
+        }
+        res.status(200).json({ meal, status: 200 });
+      } catch (error) {
+        res
+          .status(500)
+          .json({ message: "Error fetching meal", error: error.message });
+      }
+    });
+
+    // Update a specific meal plan by ID
+    app.put("/api/kv1/meal/:id", async (req, res) => {
+      try {
+        const { id } = req.params;
+        const updatedMeal = req.body;
+        // Update the workout in the database
+        const result = await mealCollection.updateOne(
+          { _id: ObjectId(id) },
+          { $set: updatedMeal }
+        );
+        if (result.modifiedCount === 0) {
+          return res
+            .status(404)
+            .json({ message: "Meal not found", status: 404 });
+        }
+        res
+          .status(200)
+          .json({ message: "Meal updated successfully", status: 200 });
+      } catch (error) {
+        res
+          .status(500)
+          .json({ message: "Error updating meal", error: error.message });
+      }
+    });
+
+    // Delete a specific meal plan by ID
+    app.delete("/api/kv1/meal/:id", async (req, res) => {
+      try {
+        const { id } = req.params;
+        const result = await mealCollection.deleteOne(
+          { _id: ObjectId(id) });
+        if (result.deletedCount === 0) {
+          return res
+            .status(404)
+            .json({ message: "Meal not found", status: 404 });
+        }
+        res
+          .status(200)
+          .json({ message: "Meal deleted successfully", status: 200 });
+      } catch (error) {
+        res
+          .status(500)
+          .json({ message: "Error deleting meal", error: error.message });
+      }
+    });
+
+
+
+
+
 
 
   } finally {
