@@ -318,6 +318,31 @@ const run = async () => {
       }
     });
 
+    // get workout from specific user
+    app.get("/api/kv1/user-workout/:user_id", async (req, res) => {
+      try {
+        const { user_id } = req.params;
+        // console.log(params);
+        const user = await userCollection.findOne({ id: user_id });
+        // return;
+
+        if (!user) {
+          return res
+            .status(404)
+            .json({ message: "User not found", status: 404 });
+          return;
+        } else if (user?.workouts) {
+          res.status(200).json({ workouts: user.workouts, status: 200 });
+        } else {
+          res.status(200).json({ user: user, status: 200 });
+        }
+      } catch (error) {
+        res
+          .status(500)
+          .json({ message: "Error fetching workouts", error: error.message });
+      }
+    });
+
     // Update a specific workout by ID
     app.put("/api/kv1/workout/:id", async (req, res) => {
       try {
@@ -342,50 +367,6 @@ const run = async () => {
           .json({ message: "Error updating workout", error: error.message });
       }
     });
-
-    // app.put("/api/kv1/update-workout-module/:id", async (req, res) => {
-    //   try {
-    //     const { id } = req.params;
-    //     const updatedWorkout = req.body;
-    //     // Update the workout in the database
-    //     const result = await workoutCollection.updateOne(
-    //       { id },
-    //       { $set: updatedWorkout }
-    //     );
-    //     if (result.modifiedCount === 0) {
-    //       return res
-    //         .status(404)
-    //         .json({ message: "Workout not found", status: 404 });
-    //     }
-    //     res
-    //       .status(200)
-    //       .json({ message: "Workout updated successfully", status: 200 });
-    //   } catch (error) {
-    //     res
-    //       .status(500)
-    //       .json({ message: "Error updating workout", error: error.message });
-    //   }
-    // });
-    // app.put("/api/kv1/update-workout-module/:id/:module_id", async (req, res) => {
-    //   try {
-    //     const { id, module_id } = req.params;
-    //     const updatedModule = req.body;
-
-    //     // Update the specific module in the workout in the database
-    //     const result = await workoutCollection.updateOne(
-    //       { "workout_id": id, "workout_modules.id": module_id },
-    //       { $set: { "workout_modules.$": updatedModule } }
-    //     );
-
-    //     if (result.modifiedCount === 0) {
-    //       return res.status(404).json({ message: "Module not found", status: 404 });
-    //     }
-
-    //     res.status(200).json({ message: "Module updated successfully", status: 200 });
-    //   } catch (error) {
-    //     res.status(500).json({ message: "Error updating module", error: error.message });
-    //   }
-    // });
 
     // Update a specific workout module by ID
     app.put(
