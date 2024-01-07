@@ -15,7 +15,9 @@ app.use(express.json());
 // const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.raiw9.mongodb.net/?retryWrites=true&w=majority`;
 // const uri = `mongodb://localhost:27017`;
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.efpjwcu.mongodb.net/?retryWrites=true&w=majority`;
+// const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.efpjwcu.mongodb.net/?retryWrites=true&w=majority`;
+
+const uri = `mongodb://${process.env.DB_USER}:${process.env.DB_PASS}@ac-dcujods-shard-00-00.efpjwcu.mongodb.net:27017,ac-dcujods-shard-00-01.efpjwcu.mongodb.net:27017,ac-dcujods-shard-00-02.efpjwcu.mongodb.net:27017/?ssl=true&replicaSet=atlas-5aa5iy-shard-0&authSource=admin&retryWrites=true&w=majority`;
 
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
@@ -245,7 +247,7 @@ const run = async () => {
       }
     });
 
-    // ********** ! Workouts api collection ! ********** //
+    // ********** ! Workout api collection ! ********** //
 
     // create a new workout
     app.post("/api/kv1/create-workout", async (req, res) => {
@@ -304,7 +306,7 @@ const run = async () => {
     app.get("/api/kv1/workout/:id", async (req, res) => {
       try {
         const { id } = req.params;
-        const workout = await workoutCollection.findOne({ _id: ObjectId(id) });
+        const workout = await workoutCollection.findOne({ workout_id: id });
         if (!workout) {
           return res
             .status(404)
@@ -342,6 +344,74 @@ const run = async () => {
           .json({ message: "Error updating workout", error: error.message });
       }
     });
+    // Update a specific workout module by ID
+    // app.put("/api/kv1/update-workout-module/:id", async (req, res) => {
+    //   try {
+    //     const { id } = req.params;
+    //     const updatedWorkout = req.body;
+    //     // Update the workout in the database
+    //     const result = await workoutCollection.updateOne(
+    //       { id },
+    //       { $set: updatedWorkout }
+    //     );
+    //     if (result.modifiedCount === 0) {
+    //       return res
+    //         .status(404)
+    //         .json({ message: "Workout not found", status: 404 });
+    //     }
+    //     res
+    //       .status(200)
+    //       .json({ message: "Workout updated successfully", status: 200 });
+    //   } catch (error) {
+    //     res
+    //       .status(500)
+    //       .json({ message: "Error updating workout", error: error.message });
+    //   }
+    // });
+    // app.put("/api/kv1/update-workout-module/:id/:module_id", async (req, res) => {
+    //   try {
+    //     const { id, module_id } = req.params;
+    //     const updatedModule = req.body;
+
+    //     // Update the specific module in the workout in the database
+    //     const result = await workoutCollection.updateOne(
+    //       { "workout_id": id, "workout_modules.id": module_id },
+    //       { $set: { "workout_modules.$": updatedModule } }
+    //     );
+
+    //     if (result.modifiedCount === 0) {
+    //       return res.status(404).json({ message: "Module not found", status: 404 });
+    //     }
+
+    //     res.status(200).json({ message: "Module updated successfully", status: 200 });
+    //   } catch (error) {
+    //     res.status(500).json({ message: "Error updating module", error: error.message });
+    //   }
+    // });
+
+    app.put("/api/kv1/update-workout-module/:id/:module_id", async (req, res) => {
+      try {
+        const { id, module_id } = req.params;
+        const { isConfirmed } = req.body;
+
+        // Update the specific module's isConfirmed field in the workout in the database
+        const result = await workoutCollection.updateOne(
+          { "workout_id": id, "workout_modules.id": module_id },
+          { $set: { "workout_modules.$.isConfirmed": isConfirmed } }
+        );
+
+        if (result.modifiedCount === 0) {
+          return res.status(404).json({ message: "Module not found", status: 404 });
+        }
+
+        res.status(200).json({ message: "Module updated successfully", status: 200 });
+      } catch (error) {
+        res.status(500).json({ message: "Error updating module", error: error.message });
+      }
+    });
+
+
+
 
     // ********** ! Meal plan api collection ! ********** //
 
@@ -498,7 +568,7 @@ const run = async () => {
         const { user_id } = req.params;
         // return;
 
-        const { workout_id, meal_id, mealPlan_id } = req.body;
+        const { workout, meal_id, mealPlan_id, workout_module } = req.body;
 
         const user = await userCollection.findOne({ id: user_id });
         // console.log(user);
@@ -509,10 +579,10 @@ const run = async () => {
         }
         // return
         // Update user with workout information
-        if (workout_id) {
+        if (workout) {
           const updatedUser = await userCollection.findOneAndUpdate(
             { id: user_id },
-            { $addToSet: { workouts: workout_id } }, // Assuming workouts is an array in your user schema
+            { $addToSet: { workouts: workout } }, // Assuming workouts is an array in your user schema
             { returnDocument: "after" }
           );
           console.log(updatedUser);
@@ -544,12 +614,25 @@ const run = async () => {
         else if (mealPlan_id) {
           const updatedUser = await userCollection.findOneAndUpdate(
             { id: user_id },
-            { $addToSet: { mealPlans: mealPlan_id } }, // Assuming mealPlans is an array in your user schema
+            { $addToSet: { mealPlans: mealPlan_id } },
             { returnDocument: "after" }
           );
 
           res.status(200).json({
             message: "User updated successfully with meal plan",
+            user: updatedUser.value,
+            status: 200,
+          });
+        }
+        // Update user with workout modules information
+        else if (workout_module) {
+          const updatedUser = await userCollection.findOneAndUpdate(
+            { id: user_id },
+            { $addToSet: { workout_modules: workout_module } },
+            { returnDocument: "after" }
+          );
+          res.status(200).json({
+            message: "User updated successfully with workout modules",
             user: updatedUser.value,
             status: 200,
           });
