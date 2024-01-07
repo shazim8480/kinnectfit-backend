@@ -128,7 +128,6 @@ const run = async () => {
           weight,
           BMI,
           status,
-          isTrainer,
           trainerImg,
         } = req.body;
 
@@ -140,7 +139,7 @@ const run = async () => {
           weight,
           BMI,
           status,
-          isTrainer,
+          isTrainer: false,
           trainerImg,
           created_at: new Date(),
         };
