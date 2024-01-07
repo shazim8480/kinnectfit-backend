@@ -342,7 +342,7 @@ const run = async () => {
           .json({ message: "Error updating workout", error: error.message });
       }
     });
-    // Update a specific workout module by ID
+
     // app.put("/api/kv1/update-workout-module/:id", async (req, res) => {
     //   try {
     //     const { id } = req.params;
@@ -387,6 +387,7 @@ const run = async () => {
     //   }
     // });
 
+    // Update a specific workout module by ID
     app.put(
       "/api/kv1/update-workout-module/:id/:module_id",
       async (req, res) => {
@@ -539,6 +540,7 @@ const run = async () => {
     });
 
     // ********** !  user api  ********** //
+
     // Get all users
     app.get("/api/kv1/users", async (req, res) => {
       try {
