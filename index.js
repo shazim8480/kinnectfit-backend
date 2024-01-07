@@ -33,6 +33,7 @@ const run = async () => {
     const workoutCollection = db.collection("workouts");
     const mealPlanCollection = db.collection("mealPlans");
     const mealCollection = db.collection("meals");
+    const reviewCollection = db.collection("reviews");
 
 
 
@@ -773,11 +774,44 @@ const run = async () => {
       }
     });
 
+    // ********** ! Review api collection ! ********** //
 
+    // Create a review
+    app.post("/api/kv1/create-review", async (req, res) => {
+      const review_id = uuidv4();
+      try {
+        const {
+          review_information
+        } = req.body;
 
+        const newReview = {
+          review_id,
+          review_information,
+          created_at: new Date(),
+        };
 
+        // // Check if a trainer with the same trainer_id already exists
+        // const existingTrainer = await trainerCollection.findOne({ trainer_id });
+        // if (existingTrainer) {
+        //   return res.status(409).json({
+        //     message: "Trainer already exists",
+        //     status: 409,
+        //   });
+        // }
 
-
+        // Save the new trainer to the database
+        const insertedReview = await reviewCollection.insertOne(newReview);
+        res.status(201).json({
+          message: "Review created successfully",
+          trainer: insertedReview,
+          status: 201,
+        });
+      } catch (error) {
+        res
+          .status(500)
+          .json({ message: "Error creating trainer", error: error.message });
+      }
+    });
 
   } finally {
   }
