@@ -375,23 +375,42 @@ const run = async () => {
         try {
           const { id, module_id } = req.params;
           const { isConfirmed } = req.body;
-
-          // Update the specific module's isConfirmed field in the workout in the database
-          const result = await workoutCollection.updateOne(
-            { workout_id: id, "workout_modules.id": module_id },
-            { $set: { "workout_modules.$.isConfirmed": isConfirmed } }
+          const result = await userCollection.updateOne(
+            {
+              "workouts.workout_id": id,
+              "workouts.workout_modules.id": module_id,
+            },
+            {
+              $set: {
+                "workouts.$[outer].workout_modules.$[inner].isConfirmed":
+                  isConfirmed,
+              },
+            },
+            {
+              arrayFilters: [
+                { "outer.workout_id": id },
+                { "inner.id": module_id },
+              ],
+            }
           );
 
-          if (result.modifiedCount === 0) {
+          if (result.matchedCount === 0) {
             return res
               .status(404)
               .json({ message: "Module not found", status: 404 });
+          }
+
+          if (result.modifiedCount === 0) {
+            return res
+              .status(200)
+              .json({ message: "No changes made", status: 200 });
           }
 
           res
             .status(200)
             .json({ message: "Module updated successfully", status: 200 });
         } catch (error) {
+          console.error("Error updating module:", error);
           res
             .status(500)
             .json({ message: "Error updating module", error: error.message });
