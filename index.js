@@ -501,9 +501,6 @@ const run = async () => {
     app.get("/api/kv1/meal-plan/:id", async (req, res) => {
       try {
         const { id } = req.params;
-        const mealPlan = await mealPlanCollection.findOne({
-          _id: ObjectId(id),
-        });
         const mealPlan = await mealPlanCollection.findOne({ mealPlan_id: id });
         if (!mealPlan) {
           return res
