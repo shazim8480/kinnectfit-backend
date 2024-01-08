@@ -412,8 +412,6 @@ const run = async () => {
     });
 
 
-
-
     // ********** ! Meal plan api collection ! ********** //
 
     // Create a meal plan
@@ -470,7 +468,7 @@ const run = async () => {
     app.get("/api/kv1/meal-plan/:id", async (req, res) => {
       try {
         const { id } = req.params;
-        const mealPlan = await mealPlanCollection.findOne({ _id: ObjectId(id) });
+        const mealPlan = await mealPlanCollection.findOne({ mealPlan_id: id });
         if (!mealPlan) {
           return res
             .status(404)
@@ -569,7 +567,7 @@ const run = async () => {
         const { user_id } = req.params;
         // return;
 
-        const { workout, meal_id, mealPlan_id, workout_module } = req.body;
+        const { workout, meal_id, mealPlan_id, workout_module, selected_meals } = req.body;
 
         const user = await userCollection.findOne({ id: user_id });
         // console.log(user);
@@ -591,6 +589,21 @@ const run = async () => {
           // return;
           res.status(200).json({
             message: "User updated successfully with workout",
+            user: updatedUser.value,
+            status: 200,
+          });
+        }
+        if (selected_meals) {
+          const updatedUser = await userCollection.findOneAndUpdate(
+            { id: user_id },
+            { $addToSet: { selected_meals: selected_meals } }, // Assuming workouts is an array in your user schema
+            { returnDocument: "after" }
+          );
+          console.log(updatedUser);
+
+          // return;
+          res.status(200).json({
+            message: "User updated successfully with selected_meals",
             user: updatedUser.value,
             status: 200,
           });
@@ -711,10 +724,10 @@ const run = async () => {
     });
 
     // Get a specific meal  by ID
-    app.get("/api/kv1/meal/:id", async (req, res) => {
+    app.get("/api/kv1/meal/:meal_id", async (req, res) => {
       try {
-        const { id } = req.params;
-        const meal = await mealCollection.findOne({ _id: ObjectId(id) });
+        const { meal_id } = req.params;
+        const meal = await mealCollection.findOne({ meal_id: meal_id });
         if (!meal) {
           return res
             .status(404)
@@ -727,6 +740,63 @@ const run = async () => {
           .json({ message: "Error fetching meal", error: error.message });
       }
     });
+
+    // Get all meals by mealPlanId
+    app.get("/api/kv1/get-meal/:mealPlan_id", async (req, res) => {
+      try {
+        const { mealPlan_id } = req.params;
+        const meals = await mealCollection.find({ mealPlan_id: mealPlan_id }).toArray();
+        if (!meals || meals.length === 0) {
+          return res
+            .status(404)
+            .json({ message: "Meals not found", status: 404 });
+        }
+        res.status(200).json({ meals, status: 200 });
+      } catch (error) {
+        res
+          .status(500)
+          .json({ message: "Error fetching meals", error: error.message });
+      }
+    });
+
+    // API endpoint to fetch meals based on workout plan and group them by category
+    app.get('/api/kv1/group-meals/:mealPlan_id', async (req, res) => {
+      const { mealPlan_id } = req.params;
+      // console.log(mealPlan_id);
+
+      if (!mealPlan_id) {
+        return res.status(400).json({ error: 'mealPlan_id is required' });
+      }
+      if (!mealPlan_id) {
+        return res.status(400).json({ error: 'mealPlan_id is required' });
+      }
+
+      try {
+        const meals = await mealCollection.find({ mealPlan_id }).toArray();
+        console.log({ meals });
+        const categorizedMeals = {
+          breakfast: [],
+          snacks: [],
+          dinner: [],
+          lunch: [],
+          uncategorized: []
+        };
+
+        meals.forEach(meal => {
+          const category = meal.meal_category.toLowerCase();
+          if (categorizedMeals.hasOwnProperty(category)) {
+            categorizedMeals[category].push(meal);
+          } else {
+            categorizedMeals.uncategorized.push(meal);
+          }
+        });
+        res.json({ categorizedMeals });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      }
+    });
+
 
     // Update a specific meal plan by ID
     app.put("/api/kv1/meal/:id", async (req, res) => {
@@ -773,6 +843,11 @@ const run = async () => {
           .json({ message: "Error deleting meal", error: error.message });
       }
     });
+
+
+
+
+
 
     // ********** ! Review api collection ! ********** //
 
