@@ -33,6 +33,7 @@ const run = async () => {
     const workoutCollection = db.collection("workouts");
     const mealPlanCollection = db.collection("mealPlans");
     const mealCollection = db.collection("meals");
+    const reviewCollection = db.collection("reviews");
 
     // ********** ! auth api ! ********** //
 
@@ -368,48 +369,73 @@ const run = async () => {
     });
 
     // Update a specific workout module by ID
+    // app.put("/api/kv1/update-workout-module/:id", async (req, res) => {
+    //   try {
+    //     const { id } = req.params;
+    //     const updatedWorkout = req.body;
+    //     // Update the workout in the database
+    //     const result = await workoutCollection.updateOne(
+    //       { id },
+    //       { $set: updatedWorkout }
+    //     );
+    //     if (result.modifiedCount === 0) {
+    //       return res
+    //         .status(404)
+    //         .json({ message: "Workout not found", status: 404 });
+    //     }
+    //     res
+    //       .status(200)
+    //       .json({ message: "Workout updated successfully", status: 200 });
+    //   } catch (error) {
+    //     res
+    //       .status(500)
+    //       .json({ message: "Error updating workout", error: error.message });
+    //   }
+    // });
+    // app.put("/api/kv1/update-workout-module/:id/:module_id", async (req, res) => {
+    //   try {
+    //     const { id, module_id } = req.params;
+    //     const updatedModule = req.body;
+
+    //     // Update the specific module in the workout in the database
+    //     const result = await workoutCollection.updateOne(
+    //       { "workout_id": id, "workout_modules.id": module_id },
+    //       { $set: { "workout_modules.$": updatedModule } }
+    //     );
+
+    //     if (result.modifiedCount === 0) {
+    //       return res.status(404).json({ message: "Module not found", status: 404 });
+    //     }
+
+    //     res.status(200).json({ message: "Module updated successfully", status: 200 });
+    //   } catch (error) {
+    //     res.status(500).json({ message: "Error updating module", error: error.message });
+    //   }
+    // });
+
     app.put(
       "/api/kv1/update-workout-module/:id/:module_id",
       async (req, res) => {
         try {
           const { id, module_id } = req.params;
           const { isConfirmed } = req.body;
-          const result = await userCollection.updateOne(
-            {
-              "workouts.workout_id": id,
-              "workouts.workout_modules.id": module_id,
-            },
-            {
-              $set: {
-                "workouts.$[outer].workout_modules.$[inner].isConfirmed":
-                  isConfirmed,
-              },
-            },
-            {
-              arrayFilters: [
-                { "outer.workout_id": id },
-                { "inner.id": module_id },
-              ],
-            }
-          );
 
-          if (result.matchedCount === 0) {
-            return res
-              .status(404)
-              .json({ message: "Module not found", status: 404 });
-          }
+          // Update the specific module's isConfirmed field in the workout in the database
+          const result = await workoutCollection.updateOne(
+            { workout_id: id, "workout_modules.id": module_id },
+            { $set: { "workout_modules.$.isConfirmed": isConfirmed } }
+          );
 
           if (result.modifiedCount === 0) {
             return res
-              .status(200)
-              .json({ message: "No changes made", status: 200 });
+              .status(404)
+              .json({ message: "Module not found", status: 404 });
           }
 
           res
             .status(200)
             .json({ message: "Module updated successfully", status: 200 });
         } catch (error) {
-          console.error("Error updating module:", error);
           res
             .status(500)
             .json({ message: "Error updating module", error: error.message });
@@ -478,6 +504,7 @@ const run = async () => {
         const mealPlan = await mealPlanCollection.findOne({
           _id: ObjectId(id),
         });
+        const mealPlan = await mealPlanCollection.findOne({ mealPlan_id: id });
         if (!mealPlan) {
           return res
             .status(404)
@@ -578,7 +605,13 @@ const run = async () => {
         const { user_id } = req.params;
         // return;
 
-        const { workout, meal_id, mealPlan_id, workout_module } = req.body;
+        const {
+          workout,
+          meal_id,
+          mealPlan_id,
+          workout_module,
+          selected_meals,
+        } = req.body;
 
         const user = await userCollection.findOne({ id: user_id });
         // console.log(user);
@@ -602,6 +635,21 @@ const run = async () => {
           // return;
           res.status(200).json({
             message: "User updated successfully with workout",
+            user: updatedUser.value,
+            status: 200,
+          });
+        }
+        if (selected_meals) {
+          const updatedUser = await userCollection.findOneAndUpdate(
+            { id: user_id },
+            { $addToSet: { selected_meals: selected_meals } }, // Assuming workouts is an array in your user schema
+            { returnDocument: "after" }
+          );
+          console.log(updatedUser);
+
+          // return;
+          res.status(200).json({
+            message: "User updated successfully with selected_meals",
             user: updatedUser.value,
             status: 200,
           });
@@ -721,10 +769,10 @@ const run = async () => {
     });
 
     // Get a specific meal  by ID
-    app.get("/api/kv1/meal/:id", async (req, res) => {
+    app.get("/api/kv1/meal/:meal_id", async (req, res) => {
       try {
-        const { id } = req.params;
-        const meal = await mealCollection.findOne({ _id: ObjectId(id) });
+        const { meal_id } = req.params;
+        const meal = await mealCollection.findOne({ meal_id: meal_id });
         if (!meal) {
           return res
             .status(404)
@@ -735,6 +783,64 @@ const run = async () => {
         res
           .status(500)
           .json({ message: "Error fetching meal", error: error.message });
+      }
+    });
+
+    // Get all meals by mealPlanId
+    app.get("/api/kv1/get-meal/:mealPlan_id", async (req, res) => {
+      try {
+        const { mealPlan_id } = req.params;
+        const meals = await mealCollection
+          .find({ mealPlan_id: mealPlan_id })
+          .toArray();
+        if (!meals || meals.length === 0) {
+          return res
+            .status(404)
+            .json({ message: "Meals not found", status: 404 });
+        }
+        res.status(200).json({ meals, status: 200 });
+      } catch (error) {
+        res
+          .status(500)
+          .json({ message: "Error fetching meals", error: error.message });
+      }
+    });
+
+    // API endpoint to fetch meals based on workout plan and group them by category
+    app.get("/api/kv1/group-meals/:mealPlan_id", async (req, res) => {
+      const { mealPlan_id } = req.params;
+      // console.log(mealPlan_id);
+
+      if (!mealPlan_id) {
+        return res.status(400).json({ error: "mealPlan_id is required" });
+      }
+      if (!mealPlan_id) {
+        return res.status(400).json({ error: "mealPlan_id is required" });
+      }
+
+      try {
+        const meals = await mealCollection.find({ mealPlan_id }).toArray();
+        console.log({ meals });
+        const categorizedMeals = {
+          breakfast: [],
+          snacks: [],
+          dinner: [],
+          lunch: [],
+          uncategorized: [],
+        };
+
+        meals.forEach((meal) => {
+          const category = meal.meal_category.toLowerCase();
+          if (categorizedMeals.hasOwnProperty(category)) {
+            categorizedMeals[category].push(meal);
+          } else {
+            categorizedMeals.uncategorized.push(meal);
+          }
+        });
+        res.json({ categorizedMeals });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
       }
     });
 
@@ -780,6 +886,43 @@ const run = async () => {
         res
           .status(500)
           .json({ message: "Error deleting meal", error: error.message });
+      }
+    });
+
+    // ********** ! Review api collection ! ********** //
+
+    // Create a review
+    app.post("/api/kv1/create-review", async (req, res) => {
+      const review_id = uuidv4();
+      try {
+        const { review_information } = req.body;
+
+        const newReview = {
+          review_id,
+          review_information,
+          created_at: new Date(),
+        };
+
+        // // Check if a trainer with the same trainer_id already exists
+        // const existingTrainer = await trainerCollection.findOne({ trainer_id });
+        // if (existingTrainer) {
+        //   return res.status(409).json({
+        //     message: "Trainer already exists",
+        //     status: 409,
+        //   });
+        // }
+
+        // Save the new trainer to the database
+        const insertedReview = await reviewCollection.insertOne(newReview);
+        res.status(201).json({
+          message: "Review created successfully",
+          trainer: insertedReview,
+          status: 201,
+        });
+      } catch (error) {
+        res
+          .status(500)
+          .json({ message: "Error creating trainer", error: error.message });
       }
     });
   } finally {
