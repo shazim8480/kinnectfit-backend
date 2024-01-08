@@ -910,11 +910,11 @@ const run = async () => {
     app.post("/api/kv1/create-review", async (req, res) => {
       const review_id = uuidv4();
       try {
-        const { review_information } = req.body;
+        const { review_info } = req.body;
 
         const newReview = {
           review_id,
-          review_information,
+          review_info,
           created_at: new Date(),
         };
 
