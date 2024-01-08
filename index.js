@@ -887,6 +887,24 @@ const run = async () => {
     });
 
     // ********** ! Review api collection ! ********** //
+    // Get All Reviews
+
+    app.get("/api/kv1/reviews", async (req, res) => {
+      try {
+        // Fetch all reviews from the review collection
+        const allReviews = await reviewCollection.find().toArray();
+
+        res.status(200).json({
+          message: "All reviews retrieved successfully",
+          reviews: allReviews,
+          status: 200,
+        });
+      } catch (error) {
+        res
+          .status(500)
+          .json({ message: "Error retrieving reviews", error: error.message });
+      }
+    });
 
     // Create a review
     app.post("/api/kv1/create-review", async (req, res) => {
