@@ -7,6 +7,6 @@ export type IRefreshTokenResponse = {
   accessToken: string;
 };
 
-export type Role = "admin" | "user" | "trainer";
+export type Role = 'admin' | 'user' | 'trainer';
 
-export const userRoles: Role[] = ["admin", "user", "trainer"];
+export const userRoles: Role[] = ['admin', 'user', 'trainer'];

@@ -1,5 +1,5 @@
-import { Model, Types } from "mongoose";
-import { Role } from "./user.constant";
+import { Model, Types } from 'mongoose';
+import { Role } from './user.constant';
 
 export type IUser = {
   id: string;
@@ -21,14 +21,14 @@ export type IUserExist = {
 
 export type UserModel = {
   isUserExist(
-    email: string
+    email: string,
   ): Promise<
-    Pick<IUserExist, "id" | "email" | "name" | "password" | "role" | "img_url">
+    Pick<IUserExist, 'id' | 'email' | 'name' | 'password' | 'role' | 'img_url'>
   >;
 
   isPasswordMatched(
     givenPassword: string,
-    savedPassword: string
+    savedPassword: string,
   ): Promise<boolean>;
 } & Model<IUser>;
 

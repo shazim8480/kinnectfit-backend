@@ -1,6 +1,6 @@
-import app from "./app";
-import mongoose from "mongoose";
-import "dotenv/config";
+import app from './app';
+import mongoose from 'mongoose';
+import 'dotenv/config';
 
 //database connection
 async function main() {

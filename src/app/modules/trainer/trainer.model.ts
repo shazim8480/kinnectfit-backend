@@ -1,6 +1,6 @@
-import { Schema } from "mongoose";
-import { model } from "mongoose";
-import { ITrainer } from "./trainer.interface";
+import { Schema } from 'mongoose';
+import { model } from 'mongoose';
+import { ITrainer } from './trainer.interface';
 
 const trainerSchema = new Schema<ITrainer>(
   {
@@ -12,8 +12,8 @@ const trainerSchema = new Schema<ITrainer>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // 3. Create a Meal Plan Model.
-export const Trainer = model<ITrainer>("Trainer", trainerSchema);
+export const Trainer = model<ITrainer>('Trainer', trainerSchema);

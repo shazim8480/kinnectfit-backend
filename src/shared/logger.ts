@@ -17,7 +17,7 @@ const logger = createLogger({
     label({ label: 'I am Groot...' }),
     timestamp(),
     myFormat,
-    prettyPrint()
+    prettyPrint(),
   ),
   //   defaultMeta: { service: 'user-service' },
   transports: [
@@ -28,7 +28,7 @@ const logger = createLogger({
         'logs',
         'winston',
         'successes',
-        'phu-%DATE%.success.log'
+        'phu-%DATE%.success.log',
       ),
       datePattern: 'YYYY-MM-DD-HH',
       zippedArchive: true,
@@ -43,7 +43,7 @@ const errorLogger = createLogger({
     label({ label: 'I am Groot...' }),
     timestamp(),
     myFormat,
-    prettyPrint()
+    prettyPrint(),
   ),
 
   //   defaultMeta: { service: 'user-service' },
@@ -55,7 +55,7 @@ const errorLogger = createLogger({
         'logs',
         'winston',
         'errors',
-        'phu-%DATE%.error.log'
+        'phu-%DATE%.error.log',
       ),
       datePattern: 'YYYY-MM-DD-HH',
       zippedArchive: true,

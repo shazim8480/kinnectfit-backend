@@ -16,7 +16,7 @@ export const auth =
       let verifiedUser = null;
       verifiedUser = jwtHelpers.verifiedToken(
         token,
-        config.jwt.token as Secret
+        config.jwt.token as Secret,
       );
       req.user = verifiedUser;
 
