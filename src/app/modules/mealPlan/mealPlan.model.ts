@@ -4,11 +4,11 @@ import { model } from 'mongoose';
 
 const mealPlanSchema = new Schema<IMealPlan>(
   {
-    trainer: { type: Schema.Types.ObjectId, ref: 'Trainer', required: true },
     mealPlan_name: { type: String, required: true },
     mealPlan_description: { type: String, required: true },
     mealPlan_category: { type: String, required: true },
     mealPlan_cover: { type: String },
+    trainer: { type: Schema.Types.ObjectId, ref: 'Trainer', required: true },
   },
   {
     timestamps: true,

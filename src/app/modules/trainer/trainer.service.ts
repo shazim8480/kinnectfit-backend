@@ -10,7 +10,7 @@ const createTrainer = async (payload: ITrainer) => {
   !payload.images || payload.images?.length === 0
     ? (payload.images = defaultImg)
     : (payload.images = payload.images);
-  const result = await Trainer.create(payload);
+  const result = (await Trainer.create(payload)).populate('user');
   return result;
 };
 

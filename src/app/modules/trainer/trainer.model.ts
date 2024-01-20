@@ -9,6 +9,7 @@ const trainerSchema = new Schema<ITrainer>(
     age: { type: Number, required: true },
     bmi: { type: Number, required: true },
     images: { type: [String] },
+    user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   },
   {
     timestamps: true,
