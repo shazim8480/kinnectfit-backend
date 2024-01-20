@@ -1,4 +1,4 @@
-import { defaultMealCover } from "./mealPlan.constants";
+import { defaultMealCover } from "./mealPlan.constant";
 import { IMealPlan } from "./mealPlan.interface";
 import { MealPlan } from "./mealPlan.model";
 

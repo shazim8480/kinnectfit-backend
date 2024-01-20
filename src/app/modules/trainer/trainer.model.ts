@@ -12,9 +12,6 @@ const trainerSchema = new Schema<ITrainer>(
   },
   {
     timestamps: true,
-    toJSON: {
-      virtuals: true,
-    },
   }
 );
 

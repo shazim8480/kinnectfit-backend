@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { MealPlanService } from "./mealPlan.service";
-import { defaultMealCover } from "./mealPlan.constants";
+import { defaultMealCover } from "./mealPlan.constant";
 const createMealPlan = async (req: Request, res: Response) => {
   try {
     const { ...mealPlanData } = req.body;
