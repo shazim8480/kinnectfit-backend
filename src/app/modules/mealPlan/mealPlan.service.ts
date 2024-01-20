@@ -7,7 +7,6 @@ import {
 } from './mealPlan.constant';
 import { IMealPlan, IMealPlanFilters } from './mealPlan.interface';
 import { MealPlan } from './mealPlan.model';
-import config from '../../../config';
 
 const createMealPlan = async (payload: IMealPlan) => {
   const { mealPlan_cover } = payload;
@@ -25,12 +24,11 @@ const getAllMealPlans = async (
 ) => {
   const { limit, page, skip, sortBy, sortOrder } =
     paginationHelpers.calculatePagination(paginationOptions);
-  console.log('Token expires', typeof config.jwt.token_expires);
+
   // Extract searchTerm to implement search query
   const { searchTerm, ...filtersData } = filters;
 
   const andConditions = [];
-
   // Search needs $or for searching in specified fields
   if (searchTerm) {
     andConditions.push({
@@ -80,7 +78,13 @@ const getAllMealPlans = async (
   };
 };
 
+const getSingleMealPlan = async (id: string) => {
+  const result = await MealPlan.findById(id).populate('trainer');
+  return result;
+};
+
 export const MealPlanService = {
   createMealPlan,
   getAllMealPlans,
+  getSingleMealPlan,
 };

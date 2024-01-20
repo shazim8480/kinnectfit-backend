@@ -33,7 +33,20 @@ const getAllMealPlans = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getSingleMealPlan = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await MealPlanService.getSingleMealPlan(id);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Meal plan fetched successfully',
+    data: result,
+  });
+});
+
 export const MealPlanController = {
   createMealPlan,
   getAllMealPlans,
+  getSingleMealPlan,
 };
