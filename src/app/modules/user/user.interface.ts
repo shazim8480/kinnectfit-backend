@@ -2,7 +2,6 @@ import { Model, Types } from 'mongoose';
 import { Role } from './user.constant';
 
 export type IUser = {
-  id: string;
   name: string;
   email: string;
   password: string;
@@ -23,7 +22,7 @@ export type UserModel = {
   isUserExist(
     email: string,
   ): Promise<
-    Pick<IUserExist, 'id' | 'email' | 'name' | 'password' | 'role' | 'img_url'>
+    Pick<IUserExist, 'email' | 'name' | 'password' | 'role' | 'img_url'>
   >;
 
   isPasswordMatched(

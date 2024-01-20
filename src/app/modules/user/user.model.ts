@@ -34,7 +34,7 @@ userSchema.statics.isUserExist = async function (
   email: string,
 ): Promise<Pick<
   IUser,
-  'id' | 'email' | 'password' | 'role' | 'name' | 'img_url'
+  'email' | 'password' | 'role' | 'name' | 'img_url'
 > | null> {
   return await User.findOne({ email }, { email: 1, password: 1, role: 1 });
 };
