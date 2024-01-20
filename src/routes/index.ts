@@ -1,12 +1,8 @@
-// import express from "express";
-// const router = express.Router();
-
-// export const routes = router;
-
 import express from 'express';
 import { MealPlanRoutes } from '../app/modules/mealPlan/mealPlan.route';
 import { TrainerRoutes } from '../app/modules/trainer/trainer.route';
 import { userRoutes } from '../app/modules/user/user.route';
+import { ProfileInfoRoutes } from '../app/modules/profileInfo/profileInfo.route';
 
 const router = express.Router();
 
@@ -22,6 +18,10 @@ const moduleRoutes = [
   {
     path: '/trainer',
     route: TrainerRoutes,
+  },
+  {
+    path: '/profile-info',
+    route: ProfileInfoRoutes,
   },
 ];
 
