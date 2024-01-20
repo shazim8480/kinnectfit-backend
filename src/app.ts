@@ -17,13 +17,6 @@ app.use(express.urlencoded({ extended: true }));
 // application routes
 app.use('/api/kv1', routes);
 
-app.use('/', (req, res) => {
-  res.status(httpStatus.OK).json({
-    status: httpStatus.OK,
-    message: 'The server is running',
-  });
-});
-
 // Global error handler
 app.use(globalErrorHandler);
 

@@ -12,6 +12,9 @@ const mealPlanSchema = new Schema<IMealPlan>(
   },
   {
     timestamps: true,
+    toJSON: {
+      virtuals: true,
+    },
   },
 );
 

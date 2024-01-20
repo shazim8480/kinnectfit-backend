@@ -11,4 +11,9 @@ router.post(
   validateRequest(MealPlanValidation.createZodMealPlanSchema),
   MealPlanController.createMealPlan,
 );
+router.get(
+  '/mealplans',
+  auth(ENU_USER_ROLE.ADMIN, ENU_USER_ROLE.TRAINER),
+  MealPlanController.getAllMealPlans,
+);
 export const MealPlanRoutes = router;

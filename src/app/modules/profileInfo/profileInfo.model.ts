@@ -17,6 +17,9 @@ const profileInfoSchema = new Schema<IProfileInfo>(
   },
   {
     timestamps: true,
+    toJSON: {
+      virtuals: true,
+    },
   },
 );
 

@@ -4,31 +4,39 @@ import { IUser, UserModel } from './user.interface';
 import { userRoles } from './user.constant';
 import config from '../../../config';
 
-export const userSchema = new Schema<IUser, UserModel>({
-  name: {
-    type: String,
-    required: true,
+export const userSchema = new Schema<IUser, UserModel>(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    password: {
+      type: String,
+      required: true,
+      select: false,
+    },
+    role: {
+      type: String,
+      required: true,
+      enum: userRoles,
+      default: 'user',
+    },
+    img_url: {
+      type: String,
+    },
   },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
+  {
+    timestamps: true,
+    toJSON: {
+      virtuals: true,
+    },
   },
-  password: {
-    type: String,
-    required: true,
-    select: false,
-  },
-  role: {
-    type: String,
-    required: true,
-    enum: userRoles,
-    default: 'user',
-  },
-  img_url: {
-    type: String,
-  },
-});
+);
 
 userSchema.statics.isUserExist = async function (
   email: string,

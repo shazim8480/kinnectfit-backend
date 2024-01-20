@@ -8,3 +8,8 @@ export type IMealPlan = {
   mealPlan_cover: string;
   trainer: Types.ObjectId | ITrainer;
 };
+export type IMealPlanFilters = {
+  searchTerm?: string;
+  mealPlan_name?: string;
+  mealPlan_category?: string;
+};
