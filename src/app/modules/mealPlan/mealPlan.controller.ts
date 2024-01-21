@@ -44,9 +44,28 @@ const getSingleMealPlan = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+const getMealsByMealPlan = catchAsync(async (req: Request, res: Response) => {
+  const { meal_category } = req.query;
+  const { id } = req.params;
+  console.log('Id', id, 'meal_category', meal_category);
+  // return;
+
+  const result = await MealPlanService.getMealsByMealPlan(
+    id,
+    meal_category as string,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Meals fetched successfully by meal plan',
+    data: result,
+  });
+});
 
 export const MealPlanController = {
   createMealPlan,
   getAllMealPlans,
   getSingleMealPlan,
+  getMealsByMealPlan,
 };

@@ -1,26 +1,22 @@
 import { SortOrder } from 'mongoose';
 import { paginationHelpers } from '../../../helpers/paginationHelpers';
 import { IPaginationOptions } from '../../../interfaces/pagination';
-import {
-  defaultMealCover,
-  mealPlanFilterableFields,
-} from './mealPlan.constant';
-import { IMealPlan, IMealPlanFilters } from './mealPlan.interface';
-import { MealPlan } from './mealPlan.model';
-import { Meal } from '../meal/meal.model';
+import { IMeal, IMealFilters } from './meal.interface';
+import { mealDefaultImg, mealFilterableFields } from './meal.constant';
+import { Meal } from './meal.model';
 
-const createMealPlan = async (payload: IMealPlan) => {
-  const { mealPlan_cover } = payload;
+const createMeal = async (payload: IMeal) => {
+  const { meal_cover } = payload;
   // set meal cover when it's not given
-  !mealPlan_cover
-    ? (payload.mealPlan_cover = defaultMealCover)
-    : (payload.mealPlan_cover = mealPlan_cover);
-  const result = (await MealPlan.create(payload)).populate('trainer');
+  !meal_cover
+    ? (payload.meal_cover = mealDefaultImg)
+    : (payload.meal_cover = meal_cover);
+  const result = (await Meal.create(payload)).populate('mealPlan');
   return result;
 };
 
-const getAllMealPlans = async (
-  filters: IMealPlanFilters,
+const getAllMeals = async (
+  filters: IMealFilters,
   paginationOptions: IPaginationOptions,
 ) => {
   const { limit, page, skip, sortBy, sortOrder } =
@@ -33,7 +29,7 @@ const getAllMealPlans = async (
   // Search needs $or for searching in specified fields
   if (searchTerm) {
     andConditions.push({
-      $or: mealPlanFilterableFields.map(field => ({
+      $or: mealFilterableFields.map(field => ({
         [field]: {
           $regex: searchTerm,
           $options: 'i',
@@ -61,13 +57,13 @@ const getAllMealPlans = async (
   const whereConditions =
     andConditions.length > 0 ? { $and: andConditions } : {};
 
-  const result = await MealPlan.find(whereConditions)
-    .populate('trainer')
+  const result = await Meal.find(whereConditions)
+    .populate('mealPlan')
     .sort(sortConditions)
     .skip(skip)
     .limit(limit);
 
-  const total = await MealPlan.countDocuments(whereConditions);
+  const total = await Meal.countDocuments(whereConditions);
 
   return {
     meta: {
@@ -79,26 +75,13 @@ const getAllMealPlans = async (
   };
 };
 
-const getSingleMealPlan = async (id: string) => {
-  const result = await MealPlan.findById(id).populate('trainer');
+const getSingleMeal = async (id: string) => {
+  const result = await Meal.findById(id).populate('mealPlan');
   return result;
 };
 
-const getMealsByMealPlan = async (id: string, meal_category: string) => {
-  const query = { mealPlan: id };
-  if (meal_category) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    query['meal_category'] = meal_category;
-  }
-
-  const result = await Meal.find(query);
-  return result;
-};
-
-export const MealPlanService = {
-  createMealPlan,
-  getAllMealPlans,
-  getSingleMealPlan,
-  getMealsByMealPlan,
+export const MealService = {
+  createMeal,
+  getAllMeals,
+  getSingleMeal,
 };
