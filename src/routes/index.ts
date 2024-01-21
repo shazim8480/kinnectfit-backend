@@ -5,6 +5,7 @@ import { userRoutes } from '../app/modules/user/user.route';
 import { ProfileInfoRoutes } from '../app/modules/profileInfo/profileInfo.route';
 import { MealRoutes } from '../app/modules/meal/meal.route';
 import { SelectedMealsRoutes } from '../app/modules/selectedMeals/selectedMeals.route';
+import { ReviewRoutes } from '../app/modules/review/review.route';
 
 const router = express.Router();
 
@@ -32,6 +33,10 @@ const moduleRoutes = [
   {
     path: '/profile-info',
     route: ProfileInfoRoutes,
+  },
+  {
+    path: '/review',
+    route: ReviewRoutes,
   },
 ];
 
