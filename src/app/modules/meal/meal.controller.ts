@@ -9,8 +9,10 @@ import { mealFilterableFields } from './meal.constant';
 const createMeal = catchAsync(async (req: Request, res: Response) => {
   const { ...mealData } = req.body;
   const result = await MealService.createMeal(mealData);
-  res.status(200).json({
-    message: 'Meal created successfully',
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Meals created successfully',
     data: result,
   });
 });

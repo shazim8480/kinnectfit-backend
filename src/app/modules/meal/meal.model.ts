@@ -5,14 +5,39 @@ import { MealCategories } from './meal.constant';
 
 const mealSchema = new Schema<IMeal>(
   {
-    meal_name: { type: String, required: true },
-    meal_category: { type: String, enum: MealCategories, required: true },
-    meal_cover: { type: String },
-    protein: { type: String, required: true },
-    carbs: { type: String, required: true },
-    fat: { type: String, required: true },
-    prep_time: { type: String, required: true },
-    ingredients: { type: [String], required: true },
+    meal_name: {
+      type: String,
+      required: true,
+    },
+    meal_category: {
+      type: String,
+      enum: MealCategories,
+      required: true,
+    },
+    meal_cover: {
+      type: String,
+    },
+    protein: {
+      type: String,
+      required: true,
+    },
+    carbs: {
+      type: String,
+      required: true,
+    },
+    fat: {
+      type: String,
+      required: true,
+    },
+    prep_time: {
+      type: String,
+      required: true,
+    },
+    ingredients: {
+      type: [String],
+      required: true,
+    },
+
     mealPlan: { type: Schema.Types.ObjectId, ref: 'MealPlan', required: true },
   },
   {

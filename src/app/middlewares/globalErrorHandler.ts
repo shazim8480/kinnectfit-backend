@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { ErrorRequestHandler, NextFunction, Request, Response } from 'express';
 import config from '../../config';
 import handleValidationError from '../../errors/handleValidationError';

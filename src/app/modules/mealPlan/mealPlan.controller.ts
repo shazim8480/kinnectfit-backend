@@ -9,7 +9,10 @@ import httpStatus from 'http-status';
 const createMealPlan = catchAsync(async (req: Request, res: Response) => {
   const { ...mealPlanData } = req.body;
   const result = await MealPlanService.createMealPlan(mealPlanData);
-  res.status(200).json({
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
     message: 'Meal Plan created successfully',
     data: result,
   });
@@ -47,8 +50,6 @@ const getSingleMealPlan = catchAsync(async (req: Request, res: Response) => {
 const getMealsByMealPlan = catchAsync(async (req: Request, res: Response) => {
   const { meal_category } = req.query;
   const { id } = req.params;
-  console.log('Id', id, 'meal_category', meal_category);
-  // return;
 
   const result = await MealPlanService.getMealsByMealPlan(
     id,

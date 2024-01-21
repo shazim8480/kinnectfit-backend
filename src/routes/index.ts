@@ -4,6 +4,7 @@ import { TrainerRoutes } from '../app/modules/trainer/trainer.route';
 import { userRoutes } from '../app/modules/user/user.route';
 import { ProfileInfoRoutes } from '../app/modules/profileInfo/profileInfo.route';
 import { MealRoutes } from '../app/modules/meal/meal.route';
+import { SelectedMealsRoutes } from '../app/modules/selectedMeals/selectedMeals.route';
 
 const router = express.Router();
 
@@ -19,6 +20,10 @@ const moduleRoutes = [
   {
     path: '/meal',
     route: MealRoutes,
+  },
+  {
+    path: '/meals',
+    route: SelectedMealsRoutes,
   },
   {
     path: '/trainer',
