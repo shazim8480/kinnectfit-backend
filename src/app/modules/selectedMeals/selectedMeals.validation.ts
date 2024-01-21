@@ -4,9 +4,11 @@ const createZodSelectedMealsSchema = z.object({
     user: z.string({
       required_error: 'User is required',
     }),
-    selected_meals: z.string({
-      required_error: 'Meals selection is required',
-    }),
+    selected_meals: z
+      .string({
+        required_error: 'Meals selection is required',
+      })
+      .array(),
   }),
 });
 

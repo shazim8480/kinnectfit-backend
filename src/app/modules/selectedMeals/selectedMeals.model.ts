@@ -5,11 +5,13 @@ import { ISelectedMeals } from './selectedMeals.interface';
 const selectedMealsSchema = new Schema<ISelectedMeals>(
   {
     user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    selected_meals: {
-      type: Schema.Types.ObjectId,
-      ref: 'Meal',
-      required: true,
-    },
+    selected_meals: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Meal',
+        required: true,
+      },
+    ],
   },
   {
     timestamps: true,

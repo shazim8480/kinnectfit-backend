@@ -4,5 +4,5 @@ import { IMeal } from '../meal/meal.interface';
 
 export type ISelectedMeals = {
   user: Types.ObjectId | IUser;
-  selected_meals: Types.ObjectId | IMeal;
+  selected_meals: (Types.ObjectId | IMeal)[];
 };
