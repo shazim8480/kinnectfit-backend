@@ -3,11 +3,8 @@ const createZodEnrolledWorkoutSchema = z.object({
   body: z.object({
     modules: z
       .object({
-        module_name: z.string({
-          required_error: 'Module name is required',
-        }),
-        module_time: z.string({
-          required_error: 'Module time is required',
+        module_id: z.string({
+          required_error: 'Module id is required',
         }),
         isCompleted: z.boolean({}).optional(),
       })

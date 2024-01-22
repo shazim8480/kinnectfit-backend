@@ -7,10 +7,8 @@ export type IEnrolledWorkout = {
   user: Types.ObjectId | IUser;
 };
 export type IEnrolledModule = {
-  module: Types.ObjectId | IModule;
-  module_name: string;
-  module_time: string;
-  isCompleted: boolean;
+  module_id: Types.ObjectId | IModule;
+  isCompleted?: boolean;
 };
 
 const moduleSchema = new Schema<IModule>(
