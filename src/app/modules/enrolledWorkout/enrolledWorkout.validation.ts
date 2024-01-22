@@ -1,5 +1,5 @@
 import { z } from 'zod';
-const createZodWorkoutModuleSchema = z.object({
+const createZodEnrolledWorkoutSchema = z.object({
   body: z.object({
     modules: z
       .object({
@@ -12,15 +12,12 @@ const createZodWorkoutModuleSchema = z.object({
         isCompleted: z.boolean({}).optional(),
       })
       .array(),
-    workout: z.string({
-      required_error: 'Workout is required',
-    }),
-    trainer: z.string({
-      required_error: 'Trainer is required',
+    user: z.string({
+      required_error: 'User is required',
     }),
   }),
 });
 
-export const WorkoutModuleValidation = {
-  createZodWorkoutModuleSchema,
+export const EnrolledWorkoutValidation = {
+  createZodEnrolledWorkoutSchema,
 };

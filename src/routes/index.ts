@@ -8,6 +8,7 @@ import { SelectedMealsRoutes } from '../app/modules/selectedMeals/selectedMeals.
 import { ReviewRoutes } from '../app/modules/review/review.route';
 import { WorkoutRoutes } from '../app/modules/workout/workout.route';
 import { WorkoutModuleRoutes } from '../app/modules/workoutModules/workoutModule.route';
+import { EnrolledWorkoutRoutes } from '../app/modules/enrolledWorkout/enrolledWorkout.route';
 
 const router = express.Router();
 
@@ -47,6 +48,10 @@ const moduleRoutes = [
   {
     path: '/workout-module',
     route: WorkoutModuleRoutes,
+  },
+  {
+    path: '/enrolled-workout',
+    route: EnrolledWorkoutRoutes,
   },
 ];
 

@@ -10,4 +10,5 @@ export type IWorkoutModule = {
 export type IModule = {
   module_name: string;
   module_time: string;
+  isCompleted: boolean;
 };
