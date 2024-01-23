@@ -4,7 +4,7 @@ import {
   IRefreshTokenResponse,
   userFilterableFields,
 } from './user.constant';
-import { ILoginUserResponse, IUser, IUserFilters } from './user.interface';
+import { IUser, IUserFilters } from './user.interface';
 import config from '../../../config';
 import { jwtHelpers } from '../../../helpers/jwtHelpers';
 import { Secret } from 'jsonwebtoken';
@@ -14,13 +14,7 @@ import { IPaginationOptions } from '../../../interfaces/pagination';
 import { paginationHelpers } from '../../../helpers/paginationHelpers';
 import { SortOrder } from 'mongoose';
 
-const createUser = async (
-  user: IUser,
-): Promise<{
-  userInfo: IUser;
-  accessToken: string;
-  refreshToken: string;
-}> => {
+const createUser = async (user: IUser) => {
   const checkEmail = await User.findOne({ email: user.email });
 
   if (checkEmail) {
@@ -56,10 +50,10 @@ const createUser = async (
     config.jwt.refresh_expires_in as string,
   );
 
-  return { userInfo: result, accessToken, refreshToken };
+  return { signupUser: result, accessToken, refreshToken };
 };
 
-const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
+const loginUser = async (payload: ILoginUser) => {
   const { email, password } = payload;
 
   const isUserExist = await User.isUserExist(email);
@@ -83,10 +77,7 @@ const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
     config.jwt.refresh_token as Secret,
     config.jwt.refresh_expires_in as string,
   );
-  return {
-    accessToken,
-    refreshToken,
-  };
+  return { loginUser: isUserExist, accessToken, refreshToken };
 };
 
 const refreshToken = async (token: string): Promise<IRefreshTokenResponse> => {

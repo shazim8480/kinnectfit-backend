@@ -7,7 +7,7 @@ import { ENU_USER_ROLE } from '../../../enums/user';
 const router = express.Router();
 router.post(
   '/create-trainer',
-  auth(ENU_USER_ROLE.ADMIN, ENU_USER_ROLE.USER),
+  // auth(ENU_USER_ROLE.ADMIN, ENU_USER_ROLE.USER),
   validateRequest(TrainerValidation.createZodTrainerSchema),
   TrainerController.createTrainer,
 );
