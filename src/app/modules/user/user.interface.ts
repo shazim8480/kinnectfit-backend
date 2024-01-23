@@ -35,3 +35,9 @@ export type ILoginUserResponse = {
   accessToken: string;
   refreshToken: string;
 };
+export type IUserFilters = {
+  searchTerm?: string;
+  name?: string;
+  email?: string;
+  role?: string;
+};

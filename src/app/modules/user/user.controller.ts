@@ -4,6 +4,9 @@ import { UserService } from './user.service';
 import catchAsync from '../../../shared/catchAsync';
 import config from '../../../config';
 import sendResponse from '../../../shared/sendResponse';
+import { paginationFields } from '../../../constants/pagination';
+import pick from '../../../shared/pick';
+import { userFilterableFields } from './user.constant';
 
 const createUser = catchAsync(async (req: Request, res: Response) => {
   const { ...userData } = req.body;
@@ -62,8 +65,37 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getAllUsers = catchAsync(async (req: Request, res: Response) => {
+  const filters = pick(req.query, userFilterableFields);
+  const paginationOptions = pick(req.query, paginationFields);
+
+  const result = await UserService.getAllUsers(filters, paginationOptions);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'All users retrieved Successfully!',
+    data: result,
+  });
+});
+
+const getSingleUser = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  const result = await UserService.getSingleUser(id);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'User retrieved successfully!',
+    data: result,
+  });
+});
+
 export const UserController = {
   createUser,
   loginUser,
   refreshToken,
+  getAllUsers,
+  getSingleUser,
 };

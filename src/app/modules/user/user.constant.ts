@@ -10,3 +10,5 @@ export type IRefreshTokenResponse = {
 export type Role = 'admin' | 'user' | 'trainer';
 
 export const userRoles: Role[] = ['admin', 'user', 'trainer'];
+
+export const userFilterableFields = ['searchTerm', 'name', 'email', 'role'];

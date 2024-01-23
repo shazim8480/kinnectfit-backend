@@ -68,7 +68,6 @@ const getAllMealPlans = async (
     .limit(limit);
 
   const total = await MealPlan.countDocuments(whereConditions);
-
   return {
     meta: {
       page,
