@@ -11,4 +11,9 @@ router.post(
   validateRequest(TrainerValidation.createZodTrainerSchema),
   TrainerController.createTrainer,
 );
+router.get(
+  '/trainers',
+  auth(ENU_USER_ROLE.ADMIN),
+  TrainerController.getAllTrainers,
+);
 export const TrainerRoutes = router;

@@ -1,10 +1,18 @@
 /* eslint-disable no-self-assign */
+import httpStatus from 'http-status';
+import ApiError from '../../../errors/ApiError';
 import { User } from '../user/user.model';
 import { trainerDefaultImg } from './trainer.constant';
 import { ITrainer } from './trainer.interface';
 import { Trainer } from './trainer.model';
 
 const createTrainer = async (payload: ITrainer) => {
+  // console.log('see user', payload.user);
+  const isExist = await Trainer.find({ user: payload.user });
+  // console.log('isExist', isExist);
+  if (isExist.length !== 0) {
+    throw new ApiError(httpStatus.CONFLICT, 'User is already a trainer.');
+  }
   const defaultImg = [];
   defaultImg.push(trainerDefaultImg);
 
@@ -40,6 +48,12 @@ const createTrainer = async (payload: ITrainer) => {
   return result.populate('user');
 };
 
+const getAllTrainers = async () => {
+  const result = await Trainer.find({}).populate('user');
+  return result;
+};
+
 export const TrainerService = {
   createTrainer,
+  getAllTrainers,
 };
