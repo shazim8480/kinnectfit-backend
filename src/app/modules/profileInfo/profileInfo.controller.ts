@@ -15,6 +15,31 @@ const createProfileInfo = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getAllProfileInfos = catchAsync(async (req: Request, res: Response) => {
+  const result = await ProfileInfoService.getAllProfileInfos();
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'All Profile Infos fetched successfully',
+    data: result,
+  });
+});
+
+const getSingleProfile = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  const result = await ProfileInfoService.getSingleProfile(id);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Single Profile Info fetched successfully',
+    data: result,
+  });
+});
+
 export const ProfileInfoController = {
   createProfileInfo,
+  getAllProfileInfos,
+  getSingleProfile,
 };

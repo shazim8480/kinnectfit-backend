@@ -53,7 +53,16 @@ const getAllTrainers = async () => {
   return result;
 };
 
+const getSingleTrainer = async (id: string) => {
+  const result = await Trainer.findById(id);
+  if (!result) {
+    throw new ApiError(httpStatus.CONFLICT, 'Trainer does not exist!');
+  }
+  return result;
+};
+
 export const TrainerService = {
   createTrainer,
   getAllTrainers,
+  getSingleTrainer,
 };

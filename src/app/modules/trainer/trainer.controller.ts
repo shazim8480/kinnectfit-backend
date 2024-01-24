@@ -26,7 +26,21 @@ const getAllTrainers = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getSingleTrainer = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  const result = await TrainerService.getSingleTrainer(id);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'User retrieved successfully!',
+    data: result,
+  });
+});
+
 export const TrainerController = {
   createTrainer,
   getAllTrainers,
+  getSingleTrainer,
 };

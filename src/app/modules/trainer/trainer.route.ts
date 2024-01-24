@@ -16,4 +16,9 @@ router.get(
   auth(ENU_USER_ROLE.ADMIN),
   TrainerController.getAllTrainers,
 );
+router.get(
+  '/:id',
+  auth(ENU_USER_ROLE.ADMIN, ENU_USER_ROLE.TRAINER),
+  TrainerController.getSingleTrainer,
+);
 export const TrainerRoutes = router;

@@ -13,6 +13,21 @@ const createProfileInfo = async (payload: IProfileInfo) => {
   return result;
 };
 
+const getAllProfileInfos = async () => {
+  const result = await ProfileInfo.find({}).populate('user');
+  return result;
+};
+
+const getSingleProfile = async (id: string) => {
+  const result = await ProfileInfo.findById(id);
+  if (!result) {
+    throw new ApiError(httpStatus.CONFLICT, 'Trainer does not exist!');
+  }
+  return result;
+};
+
 export const ProfileInfoService = {
   createProfileInfo,
+  getAllProfileInfos,
+  getSingleProfile,
 };
