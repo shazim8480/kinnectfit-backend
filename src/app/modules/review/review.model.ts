@@ -25,7 +25,7 @@ const reviewSchema = new Schema<IReview>(
     review_cover: {
       type: [String],
     },
-    // workout: { type: Schema.Types.ObjectId, ref: 'Workout' },   `//! When workout module will be created connect it
+    workout: { type: Schema.Types.ObjectId, ref: 'Workout' },
     mealPlan: { type: Schema.Types.ObjectId, ref: 'MealPlan' },
     user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   },

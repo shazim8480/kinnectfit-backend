@@ -15,10 +15,18 @@ router.post(
 
 router.post('/sign-in', UserController.loginUser);
 
-router.post('/refresh-token', UserController.refreshToken);
+router.post(
+  '/refresh-token',
+  auth(ENU_USER_ROLE.ADMIN, ENU_USER_ROLE.USER),
+  UserController.refreshToken,
+);
 
 router.get('/all-users', auth(ENU_USER_ROLE.ADMIN), UserController.getAllUsers);
 
-router.get('/:id', UserController.getSingleUser);
+router.get(
+  '/:id',
+  auth(ENU_USER_ROLE.ADMIN, ENU_USER_ROLE.USER),
+  UserController.getSingleUser,
+);
 
 export const userRoutes = router;

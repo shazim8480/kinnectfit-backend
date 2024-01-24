@@ -12,15 +12,9 @@ router.post(
   ReviewController.createReview,
 );
 router.get('/reviews', ReviewController.getAllReviews);
-router.get(
-  '/:id',
-  // auth(ENU_USER_ROLE.ADMIN, ENU_USER_ROLE.TRAINER, ENU_USER_ROLE.USER),
-  ReviewController.getSingleReview,
-);
-router.get(
-  '/mealplan-review/:id',
-  // auth(ENU_USER_ROLE.ADMIN, ENU_USER_ROLE.TRAINER, ENU_USER_ROLE.USER),
-  ReviewController.getReviewsByMealPlan,
-);
+router.get('/app-review', ReviewController.getReviewsByApp);
+router.get('/:id', ReviewController.getSingleReview);
+router.get('/mealplan-review/:id', ReviewController.getReviewsByMealPlan);
+router.get('/workout-review/:id', ReviewController.getReviewsByWorkout);
 
 export const ReviewRoutes = router;

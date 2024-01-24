@@ -41,11 +41,29 @@ const getSingleReview = catchAsync(async (req: Request, res: Response) => {
 const getReviewsByMealPlan = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const result = await ReviewService.getReviewsByMealPlan(id);
-
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'Review fetched by meal plan successfully',
+    data: result,
+  });
+});
+const getReviewsByWorkout = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await ReviewService.getReviewsByWorkout(id);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Review fetched by workout successfully',
+    data: result,
+  });
+});
+const getReviewsByApp = catchAsync(async (req: Request, res: Response) => {
+  const result = await ReviewService.getReviewsByApp();
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Review fetched by app successfully',
     data: result,
   });
 });
@@ -55,4 +73,6 @@ export const ReviewController = {
   getAllReviews,
   getSingleReview,
   getReviewsByMealPlan,
+  getReviewsByWorkout,
+  getReviewsByApp,
 };

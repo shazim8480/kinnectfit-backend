@@ -10,7 +10,6 @@ import { userFilterableFields } from './user.constant';
 
 const createUser = catchAsync(async (req: Request, res: Response) => {
   const { ...userData } = req.body;
-
   const resultWithRefreshToken = await UserService.createUser(userData);
   const { refreshToken, ...result } = resultWithRefreshToken;
   // set refresh token into cookies

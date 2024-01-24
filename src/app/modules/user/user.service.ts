@@ -35,7 +35,7 @@ const createUser = async (user: IUser) => {
   const tokenInfo = {
     id: createdUser.id,
     email: user.email,
-    role: user.role,
+    role: 'user',
   };
 
   const accessToken = jwtHelpers.createToken(
@@ -50,13 +50,15 @@ const createUser = async (user: IUser) => {
     config.jwt.refresh_expires_in as string,
   );
 
-  return { signupUser: result, accessToken, refreshToken };
+  return { user: result, accessToken, refreshToken };
 };
 
 const loginUser = async (payload: ILoginUser) => {
   const { email, password } = payload;
 
   const isUserExist = await User.isUserExist(email);
+  const isUser = await User.findOne({ email });
+  // console.log('isUser', isUserExist);
 
   if (!isUserExist) {
     throw new ApiError(httpStatus.NOT_FOUND, "User doesn't exist.");
@@ -77,7 +79,7 @@ const loginUser = async (payload: ILoginUser) => {
     config.jwt.refresh_token as Secret,
     config.jwt.refresh_expires_in as string,
   );
-  return { loginUser: isUserExist, accessToken, refreshToken };
+  return { user: isUser, accessToken, refreshToken };
 };
 
 const refreshToken = async (token: string): Promise<IRefreshTokenResponse> => {
