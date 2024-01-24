@@ -1,6 +1,7 @@
 import { Schema } from 'mongoose';
 import { model } from 'mongoose';
 import { ITrainer } from './trainer.interface';
+import { trainerStatus } from './trainer.constant';
 
 const trainerSchema = new Schema<ITrainer>(
   {
@@ -9,6 +10,12 @@ const trainerSchema = new Schema<ITrainer>(
     age: { type: String, required: true },
     bmi: { type: String, required: true },
     images: { type: [String] },
+    status: {
+      type: String,
+      required: true,
+      enum: trainerStatus,
+      default: 'pending',
+    },
     user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   },
   {

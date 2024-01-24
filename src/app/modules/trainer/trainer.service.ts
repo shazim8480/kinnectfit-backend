@@ -3,10 +3,10 @@ import httpStatus from 'http-status';
 import ApiError from '../../../errors/ApiError';
 import { User } from '../user/user.model';
 import { trainerDefaultImg } from './trainer.constant';
-import { ITrainer } from './trainer.interface';
+import { ICreateTrainer, ITrainer } from './trainer.interface';
 import { Trainer } from './trainer.model';
 
-const createTrainer = async (payload: ITrainer) => {
+const trainerRequest = async (payload: ITrainer) => {
   // console.log('see user', payload.user);
   const isExist = await Trainer.find({ user: payload.user });
   // console.log('isExist', isExist);
@@ -21,31 +21,45 @@ const createTrainer = async (payload: ITrainer) => {
     ? (payload.images = defaultImg)
     : (payload.images = payload.images);
 
-  let result;
-
+  try {
+    const result = (await Trainer.create(payload)).populate('user');
+    return result;
+  } catch (error) {
+    // console.log(error);
+  }
+};
+const createTrainer = async (payload: ICreateTrainer) => {
   // Use a Mongoose transaction for atomicity
   const session = await Trainer.startSession();
   session.startTransaction();
 
   try {
-    // Create trainer
-    result = await Trainer.create(payload);
+    // const result = await Trainer.find({ user: payload.user }).populate('user');
 
     // Update user role to "trainer"
     await User.findByIdAndUpdate(payload.user, { $set: { role: 'trainer' } });
+    await Trainer.findOneAndUpdate(
+      { user: payload.user },
+      {
+        $set: { status: 'approved' },
+      },
+    );
 
     // Commit the transaction
     await session.commitTransaction();
     session.endSession();
+    // console.log('result', result);
+    // return;
+    const result = await Trainer.findOne({ user: payload.user }).populate(
+      'user',
+    );
+    return result;
   } catch (error) {
     // If an error occurs, abort the transaction
     await session.abortTransaction();
     session.endSession();
     throw error; // Rethrow the error
   }
-
-  // Populate 'user' after the transaction is complete
-  return result.populate('user');
 };
 
 const getAllTrainers = async () => {
@@ -62,6 +76,7 @@ const getSingleTrainer = async (id: string) => {
 };
 
 export const TrainerService = {
+  trainerRequest,
   createTrainer,
   getAllTrainers,
   getSingleTrainer,

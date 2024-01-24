@@ -4,6 +4,17 @@ import catchAsync from '../../../shared/catchAsync';
 import sendResponse from '../../../shared/sendResponse';
 import httpStatus from 'http-status';
 
+const trainerRequest = catchAsync(async (req: Request, res: Response) => {
+  const { ...trainerData } = req.body;
+  const result = await TrainerService.trainerRequest(trainerData);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Requested for becoming a trainer',
+    data: result,
+  });
+});
 const createTrainer = catchAsync(async (req: Request, res: Response) => {
   const { ...trainerData } = req.body;
   const result = await TrainerService.createTrainer(trainerData);
@@ -43,4 +54,5 @@ export const TrainerController = {
   createTrainer,
   getAllTrainers,
   getSingleTrainer,
+  trainerRequest,
 };

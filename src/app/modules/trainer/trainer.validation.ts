@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { trainerStatus } from './trainer.constant';
 const createZodTrainerSchema = z.object({
   body: z.object({
     height: z.string({
@@ -14,6 +15,7 @@ const createZodTrainerSchema = z.object({
       required_error: 'Please enter your BMI',
     }),
     images: z.string().array().optional(),
+    status: z.enum([...trainerStatus] as [string, ...string[]]).optional(),
   }),
 });
 
