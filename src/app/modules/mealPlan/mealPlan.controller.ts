@@ -48,13 +48,9 @@ const getSingleMealPlan = catchAsync(async (req: Request, res: Response) => {
   });
 });
 const getMealsByMealPlan = catchAsync(async (req: Request, res: Response) => {
-  const { meal_category } = req.query;
   const { id } = req.params;
 
-  const result = await MealPlanService.getMealsByMealPlan(
-    id,
-    meal_category as string,
-  );
+  const result = await MealPlanService.getMealsByMealPlan(id);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,

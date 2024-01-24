@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { SortOrder } from 'mongoose';
 import { paginationHelpers } from '../../../helpers/paginationHelpers';
 import { IPaginationOptions } from '../../../interfaces/pagination';
@@ -83,16 +84,29 @@ const getSingleMealPlan = async (id: string) => {
   return result;
 };
 
-const getMealsByMealPlan = async (id: string, meal_category: string) => {
-  const query = { mealPlan: id };
-  if (meal_category) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    query['meal_category'] = meal_category;
-  }
+const getMealsByMealPlan = async (id: string) => {
+  try {
+    const meals = await Meal.find({ mealPlan: id }).lean().exec();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const organizedMeals: any = {};
 
-  const result = await Meal.find(query);
-  return result;
+    meals.forEach(meal => {
+      const category = meal.meal_category;
+
+      // If the category doesn't exist in the organizedMeals object, create an array for it
+      if (!organizedMeals[category]) {
+        organizedMeals[category] = [];
+      }
+
+      // Push the current meal to the corresponding category array
+      organizedMeals[category].push(meal);
+    });
+
+    return organizedMeals;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
 };
 
 export const MealPlanService = {

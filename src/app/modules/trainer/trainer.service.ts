@@ -7,9 +7,7 @@ import { ICreateTrainer, ITrainer } from './trainer.interface';
 import { Trainer } from './trainer.model';
 
 const trainerRequest = async (payload: ITrainer) => {
-  // console.log('see user', payload.user);
   const isExist = await Trainer.find({ user: payload.user });
-  // console.log('isExist', isExist);
   if (isExist.length !== 0) {
     throw new ApiError(httpStatus.CONFLICT, 'User is already a trainer.');
   }
