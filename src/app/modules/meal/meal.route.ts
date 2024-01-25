@@ -13,12 +13,12 @@ router.post(
 );
 router.get(
   '/meals',
-  auth(ENU_USER_ROLE.ADMIN, ENU_USER_ROLE.TRAINER),
+  // auth(ENU_USER_ROLE.ADMIN, ENU_USER_ROLE.TRAINER),
   MealController.getAllMeals,
 );
 router.get(
   '/:id',
-  auth(ENU_USER_ROLE.ADMIN, ENU_USER_ROLE.TRAINER),
+  // auth(ENU_USER_ROLE.ADMIN, ENU_USER_ROLE.TRAINER),
   MealController.getSingleMealPlan,
 );
 export const MealRoutes = router;
