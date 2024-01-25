@@ -26,7 +26,7 @@ const moduleRoutes = [
     route: MealRoutes,
   },
   {
-    path: '/meals',
+    path: '/select-meal',
     route: SelectedMealsRoutes,
   },
   {

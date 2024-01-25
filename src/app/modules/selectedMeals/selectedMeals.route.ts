@@ -4,11 +4,11 @@ import { SelectedMealsValidation } from './selectedMeals.validation';
 import { SelectedMealsController } from './selectedMeals.controller';
 const router = express.Router();
 router.post(
-  '/select-meal',
+  '/select',
   validateRequest(SelectedMealsValidation.createZodSelectedMealsSchema),
   SelectedMealsController.createSelectedMeals,
 );
-router.get('/selected-meals', SelectedMealsController.getAllSelectedMeals);
-router.get('/selected-meal/:id', SelectedMealsController.getSingleSelectedMeal);
+router.get('/meals', SelectedMealsController.getAllSelectedMeals);
+router.get('/meal/:id', SelectedMealsController.getSingleSelectedMeal);
 router.get('/user-meals/:id', SelectedMealsController.getSelectedMealsByUserId);
 export const SelectedMealsRoutes = router;

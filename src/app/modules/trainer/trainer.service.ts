@@ -7,9 +7,11 @@ import { ICreateTrainer, ITrainer } from './trainer.interface';
 import { Trainer } from './trainer.model';
 
 const trainerRequest = async (payload: ITrainer) => {
-  const isExist = await Trainer.find({ user: payload.user });
-  if (isExist.length !== 0) {
+  const isExist = await Trainer.findOne({ user: payload.user });
+  if (isExist && isExist.status === 'approved') {
     throw new ApiError(httpStatus.CONFLICT, 'User is already a trainer.');
+  } else if (isExist && isExist.status === 'pending') {
+    throw new ApiError(httpStatus.CONFLICT, 'Trainer request on pending.');
   }
   const defaultImg = [];
   defaultImg.push(trainerDefaultImg);
