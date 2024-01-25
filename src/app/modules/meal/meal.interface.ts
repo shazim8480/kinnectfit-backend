@@ -5,7 +5,7 @@ export type IMealCategories = 'Breakfast' | 'Lunch' | 'Dinner' | 'Snacks';
 
 export type IMeal = {
   meal_name: string;
-  meal_cover?: string;
+  meal_cover?: string[];
   meal_category: IMealCategories;
   protein: string;
   carbs: string;

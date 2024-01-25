@@ -7,7 +7,7 @@ const mealPlanSchema = new Schema<IMealPlan>(
     mealPlan_name: { type: String, required: true },
     mealPlan_description: { type: String, required: true },
     mealPlan_category: { type: String, required: true },
-    mealPlan_cover: { type: String },
+    mealPlan_cover: { type: [String] },
     trainer: { type: Schema.Types.ObjectId, ref: 'Trainer', required: true },
   },
   {

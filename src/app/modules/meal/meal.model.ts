@@ -15,7 +15,7 @@ const mealSchema = new Schema<IMeal>(
       required: true,
     },
     meal_cover: {
-      type: String,
+      type: [String],
     },
     protein: {
       type: String,

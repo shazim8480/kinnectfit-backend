@@ -1,4 +1,4 @@
-export const defaultMealCover =
+export const defaultMealPlanCover =
   'https://toppng.com/uploads/preview/clipart-free-seaweed-clipart-draw-food-placeholder-11562968708qhzooxrjly.png';
 export const mealPlanFilterableFields = [
   'searchTerm',

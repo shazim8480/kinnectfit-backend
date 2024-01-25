@@ -27,36 +27,43 @@ const trainerRequest = async (payload: ITrainer) => {
   }
 };
 const createTrainer = async (payload: ICreateTrainer) => {
-  // Use a Mongoose transaction for atomicity
-  const session = await Trainer.startSession();
-  session.startTransaction();
-
-  try {
-    // const result = await Trainer.find({ user: payload.user }).populate('user');
-
-    // Update user role to "trainer"
-    await User.findByIdAndUpdate(payload.user, { $set: { role: 'trainer' } });
-    await Trainer.findOneAndUpdate(
-      { user: payload.user },
-      {
-        $set: { status: 'approved' },
-      },
+  const trainerExist = await Trainer.findOne({ user: payload.user });
+  if (!trainerExist) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      'Please make a trainer request at first',
     );
+  } else if (trainerExist && trainerExist.status === 'approved') {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User is already a trainer');
+  } else if (trainerExist && trainerExist.status === 'pending') {
+    const session = await Trainer.startSession();
+    session.startTransaction();
 
-    // Commit the transaction
-    await session.commitTransaction();
-    session.endSession();
-    // console.log('result', result);
-    // return;
-    const result = await Trainer.findOne({ user: payload.user }).populate(
-      'user',
-    );
-    return result;
-  } catch (error) {
-    // If an error occurs, abort the transaction
-    await session.abortTransaction();
-    session.endSession();
-    throw error; // Rethrow the error
+    try {
+      // Update user role to "trainer"
+      await User.findByIdAndUpdate(payload.user, { $set: { role: 'trainer' } });
+      await Trainer.findOneAndUpdate(
+        { user: payload.user },
+        {
+          $set: { status: 'approved' },
+        },
+      );
+
+      // Commit the transaction
+      await session.commitTransaction();
+      session.endSession();
+      // console.log('result', result);
+      // return;
+      const result = await Trainer.findOne({ user: payload.user }).populate(
+        'user',
+      );
+      return result;
+    } catch (error) {
+      // If an error occurs, abort the transaction
+      await session.abortTransaction();
+      session.endSession();
+      throw error; // Rethrow the error
+    }
   }
 };
 

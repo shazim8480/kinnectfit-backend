@@ -3,21 +3,38 @@ import { SortOrder } from 'mongoose';
 import { paginationHelpers } from '../../../helpers/paginationHelpers';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import {
-  defaultMealCover,
+  defaultMealPlanCover,
   mealPlanFilterableFields,
 } from './mealPlan.constant';
 import { IMealPlan, IMealPlanFilters } from './mealPlan.interface';
 import { MealPlan } from './mealPlan.model';
 import { Meal } from '../meal/meal.model';
+import { Trainer } from '../trainer/trainer.model';
+import ApiError from '../../../errors/ApiError';
+import httpStatus from 'http-status';
 
 const createMealPlan = async (payload: IMealPlan) => {
-  const { mealPlan_cover } = payload;
-  // set meal cover when it's not given
-  !mealPlan_cover
-    ? (payload.mealPlan_cover = defaultMealCover)
-    : (payload.mealPlan_cover = mealPlan_cover);
-  const result = (await MealPlan.create(payload)).populate('trainer');
-  return result;
+  // set meal plan cover when it's not given
+  const defaultImg = [];
+  defaultImg.push(defaultMealPlanCover);
+  !payload.mealPlan_cover || payload.mealPlan_cover?.length === 0
+    ? (payload.mealPlan_cover = defaultImg)
+    : // eslint-disable-next-line no-self-assign
+      (payload.mealPlan_cover = payload.mealPlan_cover);
+
+  const trainerExist = await Trainer.findById(payload.trainer);
+
+  if (!trainerExist) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Trainer does not exist');
+  } else if (trainerExist && trainerExist.status === 'pending') {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      'Trainer must need to be approved to create meal plan.',
+    );
+  } else if (trainerExist && trainerExist.status === 'approved') {
+    const result = (await MealPlan.create(payload)).populate('trainer');
+    return result;
+  }
 };
 
 const getAllMealPlans = async (

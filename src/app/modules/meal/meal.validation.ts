@@ -8,7 +8,7 @@ const createZodMealSchema = z.object({
     meal_category: z
       .enum([...MealCategories] as [string, ...string[]])
       .optional(),
-    meal_cover: z.string().optional(),
+    meal_cover: z.string().array().optional(),
 
     protein: z.string({
       required_error: 'Please enter protein quantity',

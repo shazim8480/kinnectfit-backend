@@ -6,11 +6,13 @@ import { mealDefaultImg, mealFilterableFields } from './meal.constant';
 import { Meal } from './meal.model';
 
 const createMeal = async (payload: IMeal) => {
-  const { meal_cover } = payload;
   // set meal cover when it's not given
-  !meal_cover
-    ? (payload.meal_cover = mealDefaultImg)
-    : (payload.meal_cover = meal_cover);
+  const defaultImg = [];
+  defaultImg.push(mealDefaultImg);
+  !payload.meal_cover || payload.meal_cover?.length === 0
+    ? (payload.meal_cover = defaultImg)
+    : // eslint-disable-next-line no-self-assign
+      (payload.meal_cover = payload.meal_cover);
   const result = (await Meal.create(payload)).populate('mealPlan');
   return result;
 };

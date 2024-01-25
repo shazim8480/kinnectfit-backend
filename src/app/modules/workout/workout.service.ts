@@ -1,21 +1,34 @@
 import { SortOrder } from 'mongoose';
-import { trainerDefaultImg } from '../trainer/trainer.constant';
 import { IWorkout, IWorkoutFilters } from './workout.interface';
 import { Workout } from './workout.model';
 import { paginationHelpers } from '../../../helpers/paginationHelpers';
 import { IPaginationOptions } from '../../../interfaces/pagination';
-import { workoutFilterableFields } from './workout.constant';
+import { defaultWorkoutImg, workoutFilterableFields } from './workout.constant';
+import ApiError from '../../../errors/ApiError';
+import httpStatus from 'http-status';
+import { Trainer } from '../trainer/trainer.model';
 
 const createWorkout = async (payload: IWorkout) => {
   const defaultImg = [];
-  defaultImg.push(trainerDefaultImg);
-  // set default trainer img when it's missing
+  defaultImg.push(defaultWorkoutImg);
+  // set default workout img when it's missing
   !payload.workout_cover || payload.workout_cover?.length === 0
     ? (payload.workout_cover = defaultImg)
     : // eslint-disable-next-line no-self-assign
       (payload.workout_cover = payload.workout_cover);
-  const result = (await Workout.create(payload)).populate('trainer');
-  return result;
+  const trainerExist = await Trainer.findById(payload.trainer);
+
+  if (!trainerExist) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Trainer does not exist');
+  } else if (trainerExist && trainerExist.status === 'pending') {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      'Trainer must need to be approved to create meal plan.',
+    );
+  } else if (trainerExist && trainerExist.status === 'approved') {
+    const result = (await Workout.create(payload)).populate('trainer');
+    return result;
+  }
 };
 
 const getAllWorkouts = async (
@@ -83,21 +96,8 @@ const getSingleWorkout = async (id: string) => {
   return result;
 };
 
-// const getMealsByMealPlan = async (id: string, meal_category: string) => {
-//   const query = { mealPlan: id };
-//   if (meal_category) {
-//     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//     // @ts-expect-error
-//     query['meal_category'] = meal_category;
-//   }
-
-//   const result = await Meal.find(query);
-//   return result;
-// };
-
 export const WorkoutService = {
   createWorkout,
   getAllWorkouts,
   getSingleWorkout,
-  //   getMealsByMealPlan,
 };

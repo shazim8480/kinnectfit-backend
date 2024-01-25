@@ -10,7 +10,7 @@ const createZodMealPlanSchema = z.object({
     mealPlan_category: z.string({
       required_error: 'Please give plan category name',
     }),
-    mealPlan_cover: z.string().optional(),
+    mealPlan_cover: z.string().array().optional(),
     trainer: z.string({
       required_error: 'Trainer is required',
     }),

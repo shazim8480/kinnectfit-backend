@@ -1,15 +1,14 @@
 import httpStatus from 'http-status';
 import ApiError from '../../../errors/ApiError';
-import { mealDefaultImg } from '../meal/meal.constant';
 import { User } from '../user/user.model';
 import { IReview } from './review.interface';
 import { Review } from './review.model';
+import { defaultReviewCover } from './review.constant';
 
 const createReview = async (payload: IReview) => {
   // set review cover when it's not given
   const defaultImg = [];
-  defaultImg.push(mealDefaultImg);
-  // set default trainer img when it's missing
+  defaultImg.push(defaultReviewCover);
   !payload.review_cover || payload.review_cover?.length === 0
     ? (payload.review_cover = defaultImg)
     : // eslint-disable-next-line no-self-assign
