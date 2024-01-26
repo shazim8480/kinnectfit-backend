@@ -13,6 +13,7 @@ import ApiError from '../../../errors/ApiError';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { paginationHelpers } from '../../../helpers/paginationHelpers';
 import { SortOrder } from 'mongoose';
+import { Trainer } from '../trainer/trainer.model';
 
 const createUser = async (user: IUser) => {
   const checkEmail = await User.findOne({ email: user.email });
@@ -179,10 +180,21 @@ const getSingleUser = async (id: string) => {
   }
   return result;
 };
+const getTrainerByUser = async (id: string) => {
+  const result = await Trainer.findOne({
+    user: id,
+    status: 'approved',
+  }).populate('user');
+  if (!result) {
+    throw new ApiError(httpStatus.CONFLICT, 'Trainer not found!');
+  }
+  return result;
+};
 export const UserService = {
   createUser,
   loginUser,
   refreshToken,
   getAllUsers,
   getSingleUser,
+  getTrainerByUser,
 };

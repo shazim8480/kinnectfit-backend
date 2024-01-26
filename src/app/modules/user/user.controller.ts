@@ -90,6 +90,16 @@ const getSingleUser = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+const getTrainerByUser = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await UserService.getTrainerByUser(id);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Trainer retrieved successfully by user id!',
+    data: result,
+  });
+});
 
 export const UserController = {
   createUser,
@@ -97,4 +107,5 @@ export const UserController = {
   refreshToken,
   getAllUsers,
   getSingleUser,
+  getTrainerByUser,
 };

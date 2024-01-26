@@ -97,7 +97,12 @@ const getAllMealPlans = async (
 };
 
 const getSingleMealPlan = async (id: string) => {
-  const result = await MealPlan.findById(id).populate('trainer');
+  const result = await MealPlan.findById(id).populate({
+    path: 'trainer',
+    populate: {
+      path: 'user',
+    },
+  });
   return result;
 };
 
