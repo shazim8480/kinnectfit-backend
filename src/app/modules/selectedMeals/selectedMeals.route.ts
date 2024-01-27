@@ -17,9 +17,5 @@ router.get(
   SelectedMealsController.getAllSelectedMeals,
 );
 router.get('/meal/:id', SelectedMealsController.getSingleSelectedMeal);
-router.get(
-  '/user-meals/:id',
-  auth(ENU_USER_ROLE.ADMIN, ENU_USER_ROLE.USER),
-  SelectedMealsController.getSelectedMealsByUserId,
-);
+router.get('/user-meals/:id', SelectedMealsController.getSelectedMealsByUserId);
 export const SelectedMealsRoutes = router;
