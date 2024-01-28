@@ -74,7 +74,16 @@ const getAllWorkouts = async (
     andConditions.length > 0 ? { $and: andConditions } : {};
 
   const result = await Workout.find(whereConditions)
-    .populate('trainer')
+    .populate([
+      {
+        path: 'trainer',
+        populate: [
+          {
+            path: 'user',
+          },
+        ],
+      },
+    ])
     .sort(sortConditions)
     .skip(skip)
     .limit(limit);
@@ -92,7 +101,16 @@ const getAllWorkouts = async (
 };
 
 const getSingleWorkout = async (id: string) => {
-  const result = await Workout.findById(id).populate('trainer');
+  const result = await Workout.findById(id).populate([
+    {
+      path: 'trainer',
+      populate: [
+        {
+          path: 'user',
+        },
+      ],
+    },
+  ]);
   return result;
 };
 

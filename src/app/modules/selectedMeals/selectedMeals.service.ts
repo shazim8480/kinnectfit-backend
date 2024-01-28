@@ -6,6 +6,7 @@ import { SelectedMeals } from './selectedMeals.model';
 import { Meal } from '../meal/meal.model';
 
 const createSelectedMeals = async (payload: ISelectedMeals) => {
+  // Check if the user is valid user
   const userExist = await User.findById(payload.user);
   if (!userExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'No user found');
@@ -15,7 +16,7 @@ const createSelectedMeals = async (payload: ISelectedMeals) => {
   const validMealIds = await Meal.find({
     _id: { $in: payload.selected_meals },
   }).distinct('_id');
-  console.log('validMealIds', validMealIds);
+
   // Check if all selected meals exist in the Meal collection
   if (validMealIds.length !== payload.selected_meals.length) {
     throw new ApiError(
@@ -37,6 +38,7 @@ const createSelectedMeals = async (payload: ISelectedMeals) => {
     );
   }
 
+  // Combine new selected meals with olds
   const filteredSelectedMeals = {
     user: payload.user,
     selected_meals: validMealIds,
