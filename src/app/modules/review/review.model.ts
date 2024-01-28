@@ -7,7 +7,6 @@ const reviewSchema = new Schema<IReview>(
   {
     review_item_name: {
       type: String,
-      required: true,
     },
     review_type: {
       type: String,

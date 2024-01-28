@@ -45,9 +45,18 @@ const createReview = async (payload: IReview) => {
         'User already added review for this workout',
       );
     }
-  } else {
-    // Invalid payload, neither mealPlan nor workout specified
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid review type');
+  }
+
+  // Check if App review is add by the same user
+  const existAppReview = await Review.findOne({
+    review_type: 'App',
+    user: payload.user,
+  });
+  if (existAppReview) {
+    throw new ApiError(
+      httpStatus.CONFLICT,
+      'App review is already added by this user.',
+    );
   }
 
   // console.log('isUserExist', isUserExist);
