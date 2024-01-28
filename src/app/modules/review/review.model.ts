@@ -5,7 +5,7 @@ import { reviewTypes } from './review.constant';
 
 const reviewSchema = new Schema<IReview>(
   {
-    reviewItem_name: {
+    review_item_name: {
       type: String,
       required: true,
     },

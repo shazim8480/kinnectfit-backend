@@ -19,23 +19,54 @@ const createReview = async (payload: IReview) => {
   if (!isUserExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
   }
+
+  // Check the type of review (meal plan or workout)
+  if (payload.mealPlan) {
+    // User is trying to add a meal plan review
+    const existMealPlanReview = await Review.findOne({
+      user: payload.user,
+      mealPlan: payload.mealPlan,
+    });
+    if (existMealPlanReview) {
+      throw new ApiError(
+        httpStatus.CONFLICT,
+        'User already added review for this meal plan',
+      );
+    }
+  } else if (payload.workout) {
+    // User is trying to add a workout review
+    const existWorkoutReview = await Review.findOne({
+      user: payload.user,
+      workout: payload.workout,
+    });
+    if (existWorkoutReview) {
+      throw new ApiError(
+        httpStatus.CONFLICT,
+        'User already added review for this workout',
+      );
+    }
+  } else {
+    // Invalid payload, neither mealPlan nor workout specified
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid review type');
+  }
+
   // console.log('isUserExist', isUserExist);
   if (isUserExist?.role === 'trainer') {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Trainer can not give a review');
-  } else {
-    const result = (await Review.create(payload)).populate([
-      {
-        path: 'workout',
-      },
-      {
-        path: 'mealPlan',
-      },
-      {
-        path: 'user',
-      },
-    ]);
-    return result;
   }
+
+  const result = (await Review.create(payload)).populate([
+    {
+      path: 'workout',
+    },
+    {
+      path: 'mealPlan',
+    },
+    {
+      path: 'user',
+    },
+  ]);
+  return result;
 };
 
 const getAllReviews = async () => {

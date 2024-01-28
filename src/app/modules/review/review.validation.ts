@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { reviewTypes } from './review.constant';
 const createZodReviewSchema = z.object({
   body: z.object({
-    reviewItem_name: z.string({
+    review_item_name: z.string({
       required_error: 'Please give a review name',
     }),
     review_type: z.enum([...reviewTypes] as [string, ...string[]], {
