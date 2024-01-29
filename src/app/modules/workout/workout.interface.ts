@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-import { ITrainer } from '../trainer/trainer.interface';
+import { IUser } from '../user/user.interface';
 
 export type IWorkout = {
   workout_name: string;
@@ -7,7 +7,7 @@ export type IWorkout = {
   workout_category: string;
   total_workout_time: string;
   workout_description: string;
-  trainer: Types.ObjectId | ITrainer;
+  trainer: Types.ObjectId | IUser;
 };
 
 export type IWorkoutFilters = {

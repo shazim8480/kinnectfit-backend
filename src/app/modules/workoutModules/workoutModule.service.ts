@@ -8,7 +8,7 @@ import { Workout } from '../workout/workout.model';
 const createWorkoutModule = async (payload: IWorkoutModule) => {
   // Check if the trainer is a valid trainer
   const isTrainerExist = await Trainer.findOne({
-    _id: payload.trainer,
+    user: payload.trainer,
     status: 'approved',
   });
 
@@ -42,11 +42,6 @@ const createWorkoutModule = async (payload: IWorkoutModule) => {
       },
       {
         path: 'trainer',
-        populate: [
-          {
-            path: 'user',
-          },
-        ],
       },
     ]);
 

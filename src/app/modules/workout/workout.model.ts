@@ -23,7 +23,7 @@ const workoutSchema = new Schema<IWorkout>(
     workout_cover: {
       type: [String],
     },
-    trainer: { type: Schema.Types.ObjectId, ref: 'Trainer', required: true },
+    trainer: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   },
   {
     timestamps: true,

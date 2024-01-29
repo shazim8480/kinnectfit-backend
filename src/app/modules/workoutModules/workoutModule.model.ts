@@ -7,7 +7,7 @@ const workoutModuleSchema = new Schema<IWorkoutModule>(
   {
     modules: [moduleTypes],
     workout: { type: Schema.Types.ObjectId, ref: 'Workout', required: true },
-    trainer: { type: Schema.Types.ObjectId, ref: 'Trainer', required: true },
+    trainer: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   },
   {
     timestamps: true,

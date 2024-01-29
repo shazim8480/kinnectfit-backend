@@ -16,19 +16,16 @@ const createWorkout = async (payload: IWorkout) => {
     ? (payload.workout_cover = defaultImg)
     : // eslint-disable-next-line no-self-assign
       (payload.workout_cover = payload.workout_cover);
-  const trainerExist = await Trainer.findById(payload.trainer);
+  const trainerExist = await Trainer.findOne({
+    user: payload.trainer,
+    status: 'approved',
+  });
 
   if (!trainerExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Trainer does not exist');
-  } else if (trainerExist && trainerExist.status === 'pending') {
-    throw new ApiError(
-      httpStatus.NOT_FOUND,
-      'Trainer must need to be approved to create meal plan.',
-    );
-  } else if (trainerExist && trainerExist.status === 'approved') {
-    const result = (await Workout.create(payload)).populate('trainer');
-    return result;
   }
+  const result = (await Workout.create(payload)).populate('trainer');
+  return result;
 };
 
 const getAllWorkouts = async (
@@ -74,16 +71,7 @@ const getAllWorkouts = async (
     andConditions.length > 0 ? { $and: andConditions } : {};
 
   const result = await Workout.find(whereConditions)
-    .populate([
-      {
-        path: 'trainer',
-        populate: [
-          {
-            path: 'user',
-          },
-        ],
-      },
-    ])
+    .populate('trainer')
     .sort(sortConditions)
     .skip(skip)
     .limit(limit);
@@ -101,16 +89,7 @@ const getAllWorkouts = async (
 };
 
 const getSingleWorkout = async (id: string) => {
-  const result = await Workout.findById(id).populate([
-    {
-      path: 'trainer',
-      populate: [
-        {
-          path: 'user',
-        },
-      ],
-    },
-  ]);
+  const result = await Workout.findById(id).populate('trainer');
   return result;
 };
 
