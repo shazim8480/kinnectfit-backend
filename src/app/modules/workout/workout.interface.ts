@@ -13,5 +13,5 @@ export type IWorkout = {
 export type IWorkoutFilters = {
   searchTerm?: string;
   workout_name?: string;
-  workout_category?: string;
+  workout_category?: string | string[];
 };
