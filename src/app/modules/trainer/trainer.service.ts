@@ -69,13 +69,52 @@ const createTrainer = async (payload: ICreateTrainer) => {
   }
 };
 
+const pauseTrainer = async (payload: ICreateTrainer) => {
+  const trainerExist = await Trainer.findOne({ user: payload.user });
+  if (!trainerExist) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      'Please make a trainer request at first',
+    );
+  } else if (trainerExist && trainerExist.status === 'approved') {
+    const session = await Trainer.startSession();
+    session.startTransaction();
+
+    try {
+      // Update user role to "user"
+      await User.findByIdAndUpdate(payload.user, { $set: { role: 'user' } });
+      await Trainer.findOneAndUpdate(
+        { user: payload.user },
+        {
+          $set: { status: 'paused' },
+        },
+      );
+
+      // Commit the transaction
+      await session.commitTransaction();
+      session.endSession();
+      // console.log('result', result);
+      // return;
+      const result = await Trainer.findOne({ user: payload.user }).populate(
+        'user',
+      );
+      return result;
+    } catch (error) {
+      // If an error occurs, abort the transaction
+      await session.abortTransaction();
+      session.endSession();
+      throw error; // Rethrow the error
+    }
+  }
+};
+
 const getAllTrainers = async () => {
   const result = await Trainer.find({}).populate('user');
   return result;
 };
 
 const getSingleTrainer = async (id: string) => {
-  const result = await Trainer.findById(id);
+  const result = await Trainer.findOne({ user: id }).populate('user');
   if (!result) {
     throw new ApiError(httpStatus.CONFLICT, 'Trainer does not exist!');
   }
@@ -87,4 +126,5 @@ export const TrainerService = {
   createTrainer,
   getAllTrainers,
   getSingleTrainer,
+  pauseTrainer,
 };

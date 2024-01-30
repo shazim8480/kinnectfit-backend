@@ -14,8 +14,12 @@ router.post(
 router.post(
   '/create-trainer',
   auth(ENU_USER_ROLE.ADMIN),
-  // validateRequest(TrainerValidation.createZodTrainerSchema),
   TrainerController.createTrainer,
+);
+router.post(
+  '/pause-trainer',
+  auth(ENU_USER_ROLE.ADMIN),
+  TrainerController.pauseTrainer,
 );
 router.get(
   '/trainers',
@@ -24,7 +28,7 @@ router.get(
 );
 router.get(
   '/:id',
-  auth(ENU_USER_ROLE.ADMIN, ENU_USER_ROLE.TRAINER),
+  // auth(ENU_USER_ROLE.ADMIN, ENU_USER_ROLE.TRAINER),
   TrainerController.getSingleTrainer,
 );
 export const TrainerRoutes = router;

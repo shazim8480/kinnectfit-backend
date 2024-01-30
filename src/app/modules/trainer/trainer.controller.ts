@@ -15,6 +15,7 @@ const trainerRequest = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+
 const createTrainer = catchAsync(async (req: Request, res: Response) => {
   const { ...trainerData } = req.body;
   const result = await TrainerService.createTrainer(trainerData);
@@ -23,6 +24,18 @@ const createTrainer = catchAsync(async (req: Request, res: Response) => {
     statusCode: httpStatus.OK,
     success: true,
     message: 'Trainer created successfully',
+    data: result,
+  });
+});
+
+const pauseTrainer = catchAsync(async (req: Request, res: Response) => {
+  const { ...trainerData } = req.body;
+  const result = await TrainerService.pauseTrainer(trainerData);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Trainer paused successfully',
     data: result,
   });
 });
@@ -55,4 +68,5 @@ export const TrainerController = {
   getAllTrainers,
   getSingleTrainer,
   trainerRequest,
+  pauseTrainer,
 };
