@@ -3,26 +3,41 @@ import ApiError from '../../../errors/ApiError';
 import { User } from '../user/user.model';
 import { IEnrolledWorkout } from './enrolledWorkout.interface';
 import { EnrolledWorkout } from './enrolledWorkout.model';
+import { Workout } from '../workout/workout.model';
 
 const createEnrolledWorkout = async (payload: IEnrolledWorkout) => {
   // Check if the user exist
   const isUserExist = await User.findById(payload.user);
+  const isWorkoutExist = await Workout.findById(payload.workout);
 
   if (!isUserExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User does not exist');
   }
+  if (!isWorkoutExist) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Workout does not exist');
+  }
+
+  // if user exist but workout new
+
+  let result;
+  if (isUserExist && !isWorkoutExist) {
+    result = (await EnrolledWorkout.create(payload)).populate([
+      { path: 'user' },
+      {
+        path: 'workout',
+      },
+    ]);
+  }
 
   // Find and update existing enrolled workout document
-  let result = await EnrolledWorkout.findOneAndUpdate(
-    { user: payload.user },
+  result = await EnrolledWorkout.findOneAndUpdate(
+    { user: payload.user, workout: payload.workout },
     { $push: { modules: { $each: payload.modules } } },
     { new: true },
   );
 
   // Create a new document if not found
   if (!result) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
     result = (await EnrolledWorkout.create(payload)).populate([
       { path: 'user' },
     ]);

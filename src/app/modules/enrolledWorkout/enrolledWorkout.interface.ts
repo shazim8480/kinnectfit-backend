@@ -1,10 +1,12 @@
 import { Schema, Types, model } from 'mongoose';
 import { IUser } from '../user/user.interface';
 import { IModule } from '../workoutModules/workoutModule.interface';
+import { IWorkout } from '../workout/workout.interface';
 
 export type IEnrolledWorkout = {
   modules: IEnrolledModule[];
   user: Types.ObjectId | IUser;
+  workout: Types.ObjectId | IWorkout;
 };
 export type IEnrolledModule = {
   module_id: Types.ObjectId | IModule;

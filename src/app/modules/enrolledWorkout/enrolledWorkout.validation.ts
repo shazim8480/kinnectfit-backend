@@ -12,6 +12,9 @@ const createZodEnrolledWorkoutSchema = z.object({
     user: z.string({
       required_error: 'User is required',
     }),
+    workout: z.string({
+      required_error: 'Workout is required',
+    }),
   }),
 });
 

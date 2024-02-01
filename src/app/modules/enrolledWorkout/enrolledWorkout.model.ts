@@ -7,6 +7,7 @@ const enrolledWorkoutSchema = new Schema<IEnrolledWorkout>(
   {
     modules: [enrolledWorkoutTypes],
     user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    workout: { type: Schema.Types.ObjectId, ref: 'Workout', required: true },
   },
   {
     timestamps: true,
