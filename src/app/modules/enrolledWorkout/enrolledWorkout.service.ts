@@ -72,7 +72,14 @@ const getSingleEnrolledWorkout = async (id: string) => {
 
 const getEnrolledWorkoutModulesByUser = async (id: string) => {
   const query = { user: id };
-  const result = await EnrolledWorkout.find(query);
+  const result = await EnrolledWorkout.find(query).populate([
+    {
+      path: 'user',
+    },
+    {
+      path: 'workout',
+    },
+  ]);
   return result;
 };
 

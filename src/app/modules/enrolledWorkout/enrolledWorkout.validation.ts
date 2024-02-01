@@ -9,6 +9,9 @@ const createZodEnrolledWorkoutSchema = z.object({
         isCompleted: z.boolean({}).optional(),
       })
       .array(),
+    total_modules: z.number({
+      required_error: 'Total modules is required',
+    }),
     user: z.string({
       required_error: 'User is required',
     }),

@@ -5,6 +5,7 @@ import { IWorkout } from '../workout/workout.interface';
 
 export type IEnrolledWorkout = {
   modules: IEnrolledModule[];
+  total_modules: number;
   user: Types.ObjectId | IUser;
   workout: Types.ObjectId | IWorkout;
 };
