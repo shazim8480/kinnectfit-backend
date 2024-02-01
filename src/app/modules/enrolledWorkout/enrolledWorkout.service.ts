@@ -16,11 +16,17 @@ const createEnrolledWorkout = async (payload: IEnrolledWorkout) => {
   if (!isWorkoutExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Workout does not exist');
   }
+  const isEnrollUserExist = await EnrolledWorkout.findOne({
+    user: payload.user,
+  });
+  const isEnrollWorkoutExist = await EnrolledWorkout.findOne({
+    workout: payload.workout,
+  });
 
   // if user exist but workout new
 
   let result;
-  if (isUserExist && !isWorkoutExist) {
+  if (isEnrollUserExist && !isEnrollWorkoutExist) {
     result = (await EnrolledWorkout.create(payload)).populate([
       { path: 'user' },
       {
@@ -31,7 +37,7 @@ const createEnrolledWorkout = async (payload: IEnrolledWorkout) => {
 
   // Find and update existing enrolled workout document
   result = await EnrolledWorkout.findOneAndUpdate(
-    { user: payload.user, workout: payload.workout },
+    { user: payload.user },
     { $push: { modules: { $each: payload.modules } } },
     { new: true },
   );

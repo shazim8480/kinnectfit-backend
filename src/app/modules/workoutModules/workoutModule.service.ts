@@ -85,11 +85,11 @@ const getAllWorkoutModules = async () => {
     },
     {
       path: 'trainer',
-      populate: [
-        {
-          path: 'user',
-        },
-      ],
+      // populate: [
+      //   {
+      //     path: 'user',
+      //   },
+      // ],
     },
   ]);
   return result;
