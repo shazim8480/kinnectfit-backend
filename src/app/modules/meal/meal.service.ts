@@ -109,8 +109,9 @@ const getSingleMeal = async (id: string) => {
   return result;
 };
 const getMealsByTrainer = async (id: string) => {
-  const isUserExist = await Trainer.findById(id);
-  if (!isUserExist) {
+  const isTrainerExist = await Trainer.findById(id);
+  // console.log('🚀 isTrainerExist', isTrainerExist);
+  if (!isTrainerExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Trainer not found');
   }
   const result = await Meal.find({ trainer: id }).populate([
