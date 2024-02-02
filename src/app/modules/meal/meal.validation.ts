@@ -30,6 +30,9 @@ const createZodMealSchema = z.object({
     mealPlan: z.string({
       required_error: 'Meal plan is required',
     }),
+    trainer: z.string({
+      required_error: 'Trainer is required',
+    }),
   }),
 });
 

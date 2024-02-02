@@ -4,6 +4,10 @@ import { IPaginationOptions } from '../../../interfaces/pagination';
 import { IMeal, IMealFilters } from './meal.interface';
 import { mealDefaultImg, mealFilterableFields } from './meal.constant';
 import { Meal } from './meal.model';
+import { MealPlan } from '../mealPlan/mealPlan.model';
+import { User } from '../user/user.model';
+import ApiError from '../../../errors/ApiError';
+import httpStatus from 'http-status';
 
 const createMeal = async (payload: IMeal) => {
   // set meal cover when it's not given
@@ -13,6 +17,14 @@ const createMeal = async (payload: IMeal) => {
     ? (payload.meal_cover = defaultImg)
     : // eslint-disable-next-line no-self-assign
       (payload.meal_cover = payload.meal_cover);
+  const isMealPlanExist = await MealPlan.findById(payload.mealPlan);
+  const isTrainerExist = await User.findById(payload.trainer);
+  if (!isMealPlanExist) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Meal plan does not exist');
+  }
+  if (!isTrainerExist) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Trainer does not exist');
+  }
   const result = (await Meal.create(payload)).populate('mealPlan');
   return result;
 };
@@ -81,9 +93,25 @@ const getSingleMeal = async (id: string) => {
   const result = await Meal.findById(id).populate('mealPlan');
   return result;
 };
+const getMealsByTrainer = async (id: string) => {
+  const isUserExist = await User.findById(id);
+  if (!isUserExist) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Trainer not found');
+  }
+  const result = await Meal.find({ trainer: id }).populate([
+    {
+      path: 'mealPlan',
+    },
+    {
+      path: 'trainer',
+    },
+  ]);
+  return result;
+};
 
 export const MealService = {
   createMeal,
   getAllMeals,
   getSingleMeal,
+  getMealsByTrainer,
 };

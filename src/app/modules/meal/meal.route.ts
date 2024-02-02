@@ -21,4 +21,9 @@ router.get(
   // auth(ENU_USER_ROLE.ADMIN, ENU_USER_ROLE.TRAINER),
   MealController.getSingleMealPlan,
 );
+router.get(
+  '/trainer/:id',
+  // auth(ENU_USER_ROLE.ADMIN, ENU_USER_ROLE.TRAINER),
+  MealController.getMealsByTrainer,
+);
 export const MealRoutes = router;

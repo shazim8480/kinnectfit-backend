@@ -1,5 +1,6 @@
 import { Types } from 'mongoose';
 import { IMealPlan } from '../mealPlan/mealPlan.interface';
+import { IUser } from '../user/user.interface';
 
 export type IMealCategories = 'Breakfast' | 'Lunch' | 'Dinner' | 'Snacks';
 
@@ -13,6 +14,7 @@ export type IMeal = {
   prep_time: string;
   ingredients: string[];
   mealPlan: Types.ObjectId | IMealPlan;
+  trainer: Types.ObjectId | IUser;
 };
 export type IMealFilters = {
   searchTerm?: string;
