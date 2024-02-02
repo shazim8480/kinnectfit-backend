@@ -5,9 +5,9 @@ import { IMeal, IMealFilters } from './meal.interface';
 import { mealDefaultImg, mealFilterableFields } from './meal.constant';
 import { Meal } from './meal.model';
 import { MealPlan } from '../mealPlan/mealPlan.model';
-import { User } from '../user/user.model';
 import ApiError from '../../../errors/ApiError';
 import httpStatus from 'http-status';
+import { Trainer } from '../trainer/trainer.model';
 
 const createMeal = async (payload: IMeal) => {
   // set meal cover when it's not given
@@ -18,14 +18,29 @@ const createMeal = async (payload: IMeal) => {
     : // eslint-disable-next-line no-self-assign
       (payload.meal_cover = payload.meal_cover);
   const isMealPlanExist = await MealPlan.findById(payload.mealPlan);
-  const isTrainerExist = await User.findById(payload.trainer);
+  const isTrainerExist = await Trainer.findById(payload.trainer);
   if (!isMealPlanExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Meal plan does not exist');
   }
   if (!isTrainerExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Trainer does not exist');
+  } else if (
+    (isTrainerExist && isTrainerExist.status === 'pending') ||
+    (isTrainerExist && isTrainerExist.status === 'paused')
+  ) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      'Trainer must need to be approved to create meal.',
+    );
   }
-  const result = (await Meal.create(payload)).populate('mealPlan');
+  const result = (await Meal.create(payload)).populate([
+    {
+      path: 'mealPlan',
+    },
+    {
+      path: 'trainer',
+    },
+  ]);
   return result;
 };
 
@@ -94,7 +109,7 @@ const getSingleMeal = async (id: string) => {
   return result;
 };
 const getMealsByTrainer = async (id: string) => {
-  const isUserExist = await User.findById(id);
+  const isUserExist = await Trainer.findById(id);
   if (!isUserExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Trainer not found');
   }

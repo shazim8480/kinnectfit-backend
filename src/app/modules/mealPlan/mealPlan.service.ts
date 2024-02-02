@@ -1,3 +1,4 @@
+import { Trainer } from './../trainer/trainer.model';
 /* eslint-disable no-console */
 import { SortOrder } from 'mongoose';
 import { paginationHelpers } from '../../../helpers/paginationHelpers';
@@ -9,7 +10,6 @@ import {
 import { IMealPlan, IMealPlanFilters } from './mealPlan.interface';
 import { MealPlan } from './mealPlan.model';
 import { Meal } from '../meal/meal.model';
-import { Trainer } from '../trainer/trainer.model';
 import ApiError from '../../../errors/ApiError';
 import httpStatus from 'http-status';
 
@@ -26,7 +26,10 @@ const createMealPlan = async (payload: IMealPlan) => {
 
   if (!trainerExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Trainer does not exist');
-  } else if (trainerExist && trainerExist.status === 'pending') {
+  } else if (
+    trainerExist &&
+    (trainerExist.status === 'pending' || trainerExist.status === 'paused')
+  ) {
     throw new ApiError(
       httpStatus.NOT_FOUND,
       'Trainer must need to be approved to create meal plan.',
@@ -105,6 +108,27 @@ const getSingleMealPlan = async (id: string) => {
   });
   return result;
 };
+const getMealPlansByTrainer = async (id: string) => {
+  const trainer = await Trainer.findById(id);
+  if (!trainer) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Trainer not found');
+  }
+
+  const result = await MealPlan.find({ trainer: id }).populate([
+    {
+      path: 'trainer',
+      populate: [
+        {
+          path: 'user',
+        },
+      ],
+    },
+    // {
+    //   path: 'mealPlan',
+    // },
+  ]);
+  return result;
+};
 
 const getMealsByMealPlan = async (id: string) => {
   try {
@@ -136,4 +160,5 @@ export const MealPlanService = {
   getAllMealPlans,
   getSingleMealPlan,
   getMealsByMealPlan,
+  getMealPlansByTrainer,
 };

@@ -38,7 +38,7 @@ const mealSchema = new Schema<IMeal>(
       required: true,
     },
     mealPlan: { type: Schema.Types.ObjectId, ref: 'MealPlan', required: true },
-    trainer: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    trainer: { type: Schema.Types.ObjectId, ref: 'Trainer', required: true },
   },
   {
     timestamps: true,
