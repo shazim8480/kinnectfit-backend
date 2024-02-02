@@ -53,10 +53,24 @@ const getWorkoutModulesByWorkout = catchAsync(
     });
   },
 );
+const getWorkoutModulesByTrainer = catchAsync(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result = await WorkoutModuleService.getWorkoutModulesByTrainer(id);
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Workout modules fetched successfully by trainer id',
+      data: result,
+    });
+  },
+);
 
 export const WorkoutModuleController = {
   createWorkoutModule,
   getAllWorkoutModules,
   getSingleWorkoutModule,
   getWorkoutModulesByWorkout,
+  getWorkoutModulesByTrainer,
 };

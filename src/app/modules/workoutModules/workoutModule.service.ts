@@ -114,8 +114,19 @@ const getSingleWorkoutModule = async (id: string) => {
 
 const getWorkoutModulesByWorkout = async (id: string) => {
   const query = { workout: id };
-
   const result = await WorkoutModule.find(query);
+  return result;
+};
+const getWorkoutModulesByTrainer = async (id: string) => {
+  const query = { trainer: id };
+  const result = await WorkoutModule.find(query).populate([
+    {
+      path: 'workout',
+    },
+    {
+      path: 'trainer',
+    },
+  ]);
   return result;
 };
 
@@ -124,4 +135,5 @@ export const WorkoutModuleService = {
   getAllWorkoutModules,
   getSingleWorkoutModule,
   getWorkoutModulesByWorkout,
+  getWorkoutModulesByTrainer,
 };

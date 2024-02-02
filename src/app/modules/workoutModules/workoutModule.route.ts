@@ -27,4 +27,9 @@ router.get(
   // auth(ENU_USER_ROLE.ADMIN, ENU_USER_ROLE.TRAINER),
   WorkoutModuleController.getWorkoutModulesByWorkout,
 );
+router.get(
+  '/trainer/:id',
+  // auth(ENU_USER_ROLE.ADMIN, ENU_USER_ROLE.TRAINER),
+  WorkoutModuleController.getWorkoutModulesByTrainer,
+);
 export const WorkoutModuleRoutes = router;
